@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using RestSharp;
+
+using WPMGMT.BESScraper.Model;
 
 namespace WPMGMT.BESScraper
 {
@@ -14,11 +17,12 @@ namespace WPMGMT.BESScraper
             var client = new RestClient("https://pc120006933:52311/api/");
             client.Authenticator = new HttpBasicAuthenticator("iemadmin", "bigfix");
 
-            RestRequest request = new RestRequest("query", Method.GET);
-            request.AddParameter("relevance", "(name of it, id of it, last report time of it) of bes computers whose (name of it = \"PO130021498\")");
+            RestRequest request = new RestRequest("actions", Method.GET);
+            //request.AddParameter("actions", "");
 
-            // execute the request
-            IRestResponse response = client.Execute(request);
+            // Execute the request
+            IRestResponse<List<WPMGMT.BESScraper.Model.Action>> response = client.Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
+
             try
             {
                 // If the response contains an Exception
@@ -33,9 +37,6 @@ namespace WPMGMT.BESScraper
                 Console.WriteLine("Exception encountered: {0}", ex.Message);
             }
 
-            var content = response.Content; // raw content as string
-
-            Console.WriteLine(content);
             Console.Read();
         }
     }
