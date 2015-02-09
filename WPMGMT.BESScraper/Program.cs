@@ -14,6 +14,8 @@ namespace WPMGMT.BESScraper
             Scraper scraper = new Scraper("https://pc120006933:52311/api/", "iemadmin", "bigfix");
             List<WPMGMT.BESScraper.Model.Action> actions = scraper.GetActions();
 
+            ActionDetail dt = scraper.GetActionDetail(1860);
+
             Console.Read();
         }
     }

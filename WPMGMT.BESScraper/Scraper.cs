@@ -68,5 +68,73 @@ namespace WPMGMT.BESScraper
                 return null;
             }
         }
+
+        public ActionDetail GetActionDetail(int id)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("action/{id}/status", Method.GET);
+            request.AddUrlSegment("id", id.ToString());
+
+            // Execute the request
+            IRestResponse<ActionDetail> response = client.Execute<ActionDetail>(request);
+
+            try
+            {
+                // If the response contains an Exception
+                if (response.ErrorException != null)
+                {
+                    // Throw it back up
+                    throw response.ErrorException;
+                }
+                else
+                {
+                    return response.Data;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Exception encountered: {0}", ex.Message);
+                return null;
+            }
+        }
+
+        //public List<WPMGMT.BESScraper.Model.ActionDetail> GetActionDetails()
+        //{
+        //    RestClient client = new RestClient(this.BaseURL);
+        //    client.Authenticator = this.Authenticator;
+
+        //    List<WPMGMT.BESScraper.Model.Action> actions = this.GetActions();
+
+        //    foreach (WPMGMT.BESScraper.Model.Action action in actions)
+        //    {
+
+        //    }
+
+        //    RestRequest request = new RestRequest("actions", Method.GET);
+
+        //    // Execute the request
+        //    IRestResponse<List<WPMGMT.BESScraper.Model.Action>> response = client.Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
+
+        //    try
+        //    {
+        //        // If the response contains an Exception
+        //        if (response.ErrorException != null)
+        //        {
+        //            // Throw it back up
+        //            throw response.ErrorException;
+        //        }
+        //        else
+        //        {
+        //            return response.Data;
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine("Exception encountered: {0}", ex.Message);
+        //        return null;
+        //    }
+        //}
     }
 }
