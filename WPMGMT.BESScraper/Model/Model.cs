@@ -8,6 +8,6 @@ namespace WPMGMT.BESScraper.Model
 {
     public abstract class Model
     {
-        public int ID { get; set; }
+        public string UniqueCondition { get; set; }     // Defines the WHERE clause that makes this record unique
     }
 }

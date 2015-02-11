@@ -11,10 +11,13 @@ namespace WPMGMT.BESScraper.Model
     {
         public Action()
         {
-
+            
         }
 
+
+
         public int DB_ID { get; set; }
+        public int ID { get; set; }
         public string Name { get; set; }
     }
 
