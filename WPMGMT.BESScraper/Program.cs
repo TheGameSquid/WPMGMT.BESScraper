@@ -15,7 +15,7 @@ namespace WPMGMT.BESScraper
             Actions actions = besApi.GetActions();
             ActionDetail detail = besApi.GetActionDetail(1854);
 
-             Console.Read();
+            Console.Read();
         }
     }
 }
