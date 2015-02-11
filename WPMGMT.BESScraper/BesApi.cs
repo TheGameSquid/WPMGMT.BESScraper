@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Net;
+using System.Xml.Linq;
 using RestSharp;
 using WPMGMT.BESScraper.Model;
 
@@ -61,24 +62,61 @@ namespace WPMGMT.BESScraper
             request.AddUrlSegment("id", id.ToString());
 
             // Execute the request
-            IRestResponse<ActionDetail> response = client.Execute<ActionDetail>(request);
+            XDocument response = Execute(request);
+
+            ActionDetail result = new ActionDetail(
+                            Int32.Parse(response.Element("BESAPI").Element("ActionResults").Element("ActionID").Value.ToString()),
+                            response.Element("BESAPI").Element("ActionResults").Element("Status").Value.ToString(),
+                            response.Element("BESAPI").Element("ActionResults").Element("DateIssued").Value.ToString());
+
+            foreach (XElement computerElement in response.Element("BESAPI").Element("ActionResults").Elements("Computer"))
+            {
+                Console.WriteLine(computerElement.Value);
+                Console.WriteLine(Int32.Parse(computerElement.Attribute("ID").Value.ToString()));
+                Console.WriteLine(computerElement.Attribute("Name").Value.ToString());
+                Console.WriteLine(computerElement.Element("Status").Value.ToString());
+                Console.WriteLine(Int32.Parse(computerElement.Element("ApplyCount").Value.ToString()));
+                Console.WriteLine(Int32.Parse(computerElement.Element("RetryCount").Value.ToString()));
+                Console.WriteLine(Int32.Parse(computerElement.Element("LineNumber").Value.ToString()));
+                Console.WriteLine(computerElement.Element("StartTime").Value.ToString());
+                Console.WriteLine(computerElement.Element("EndTime").Value.ToString());
+
+                result.Computers.Add(new ActionResult(
+                                        Int32.Parse(computerElement.Attribute("ID").Value.ToString()),
+                                        computerElement.Attribute("Name").Value.ToString(),
+                                        computerElement.Element("Status").Value.ToString(),
+                                        Int32.Parse(computerElement.Element("ApplyCount").Value.ToString()),
+                                        Int32.Parse(computerElement.Element("RetryCount").Value.ToString()),
+                                        Int32.Parse(computerElement.Element("LineNumber").Value.ToString()),
+                                        computerElement.Element("StartTime").Value.ToString(),
+                                        computerElement.Element("EndTime").Value.ToString()
+                    ));
+            }
+
+            return result;
+        }
+
+        public XDocument Execute(RestRequest request)
+        {
+            RestClient client = new RestClient();
+            client.BaseUrl = this.BaseURL;
+            client.Authenticator = this.Authenticator;
+
+            IRestResponse response = client.Execute(request);
 
             try
             {
-                // If the response contains an Exception
                 if (response.ErrorException != null)
                 {
-                    // Throw it back up
-                    throw response.ErrorException;
+                    throw new Exception(response.ErrorMessage);
                 }
-                else
-                {
-                    return response.Data;
-                }
+
+                // Return non-deserialized XML document
+                return XDocument.Parse(response.Content, LoadOptions.None);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Exception encountered: {0}", ex.Message);
+                Console.WriteLine("Error encountered: {0}", ex.Message);
                 return null;
             }
         }

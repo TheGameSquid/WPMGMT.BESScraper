@@ -13,10 +13,9 @@ namespace WPMGMT.BESScraper
         {
             BesApi besApi = new BesApi(new Uri("https://pc120006933:52311/api/"), "iemadmin", "bigfix");
             Actions actions = besApi.GetActions();
+            ActionDetail detail = besApi.GetActionDetail(1854);
 
-            //ActionDetail dt = scraper.GetActionDetail(1860);
-
-            Console.Read();
+             Console.Read();
         }
     }
 }
