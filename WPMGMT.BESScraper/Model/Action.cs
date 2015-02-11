@@ -5,7 +5,7 @@ using DapperExtensions.Mapper;
 
 namespace WPMGMT.BESScraper.Model
 {
-    public class Action : Model
+    public class Action
     {
         public int ID { get; set; }
         public int ActionID { get; set; }
