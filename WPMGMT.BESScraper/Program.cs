@@ -11,10 +11,10 @@ namespace WPMGMT.BESScraper
     {
         static void Main(string[] args)
         {
-            Scraper scraper = new Scraper("https://pc120006933:52311/api/", "iemadmin", "bigfix");
-            List<WPMGMT.BESScraper.Model.Action> actions = scraper.GetActions();
+            BesApi besApi = new BesApi(new Uri("https://pc120006933:52311/api/"), "iemadmin", "bigfix");
+            Actions actions = besApi.GetActions();
 
-            ActionDetail dt = scraper.GetActionDetail(1860);
+            //ActionDetail dt = scraper.GetActionDetail(1860);
 
             Console.Read();
         }
