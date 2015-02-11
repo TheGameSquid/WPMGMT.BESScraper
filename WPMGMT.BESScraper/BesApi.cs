@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Net;
 using System.Xml.Linq;
 using RestSharp;
@@ -38,6 +39,11 @@ namespace WPMGMT.BESScraper
 
             this.BaseURL = aBaseURL;
             this.authenticator = new HttpBasicAuthenticator(aUsername, aPassword);
+        }
+
+        public WPMGMT.BESScraper.Model.Action GetAction(int id)
+        {
+            return GetActions().ActionList.SingleOrDefault(x => x.ID == id);
         }
 
         public Actions GetActions()
