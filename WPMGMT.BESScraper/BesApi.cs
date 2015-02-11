@@ -43,20 +43,17 @@ namespace WPMGMT.BESScraper
 
         public WPMGMT.BESScraper.Model.Action GetAction(int id)
         {
-            return GetActions().ActionList.SingleOrDefault(x => x.ID == id);
+            return GetActions().SingleOrDefault(x => x.ID == id);
         }
 
-        public Actions GetActions()
+        public List<WPMGMT.BESScraper.Model.Action> GetActions()
         {
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
             RestRequest request = new RestRequest("actions", Method.GET);
 
-            // Execute the request
-            IRestResponse<List<WPMGMT.BESScraper.Model.Action>> response = client.Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
-
-            return Execute<Actions>(request);
+            return Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
         }
 
         public ActionDetail GetActionDetail(int id)
