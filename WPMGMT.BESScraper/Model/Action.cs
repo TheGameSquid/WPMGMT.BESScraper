@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using PetaPoco;
-
 namespace WPMGMT.BESScraper.Model
 {
-    [TableName("BESEXT.ACTION")]
-    [PrimaryKey("ID_DB", autoIncrement = true)]
     public class Action : Model
     {
         public Action()
@@ -14,9 +10,6 @@ namespace WPMGMT.BESScraper.Model
             
         }
 
-
-
-        public int DB_ID { get; set; }
         public int ID { get; set; }
         public string Name { get; set; }
     }

@@ -32,6 +32,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Dapper">
+      <HintPath>..\packages\Dapper.1.38\lib\net45\Dapper.dll</HintPath>
+    </Reference>
+    <Reference Include="DapperExtensions">
+      <HintPath>..\packages\DapperExtensions.1.4.4\lib\net40\DapperExtensions.dll</HintPath>
+    </Reference>
     <Reference Include="RestSharp, Version=105.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\RestSharp.105.0.1\lib\net4\RestSharp.dll</HintPath>
@@ -48,7 +54,6 @@
   <ItemGroup>
     <Compile Include="AppSettings.cs" />
     <Compile Include="BesDb.cs" />
-    <Compile Include="Models\PetaPoco.cs" />
     <Compile Include="Model\Action.cs" />
     <Compile Include="Model\ActionDetail.cs" />
     <Compile Include="Model\ActionResult.cs" />
