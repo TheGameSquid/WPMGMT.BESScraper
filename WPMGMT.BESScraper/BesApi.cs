@@ -72,6 +72,21 @@ namespace WPMGMT.BESScraper
                             response.Element("BESAPI").Element("ActionResults").Element("Status").Value.ToString(),
                             response.Element("BESAPI").Element("ActionResults").Element("DateIssued").Value.ToString());
 
+            return result;
+        }
+
+        public List<ActionResult> GetActionResults(int id)
+        {
+            List<ActionResult> results = new List<ActionResult>();
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("action/{id}/status", Method.GET);
+            request.AddUrlSegment("id", id.ToString());
+
+            // Execute the request
+            XDocument response = Execute(request);
+
             foreach (XElement computerElement in response.Element("BESAPI").Element("ActionResults").Elements("Computer"))
             {
                 Console.WriteLine(computerElement.Value);
@@ -84,19 +99,19 @@ namespace WPMGMT.BESScraper
                 Console.WriteLine(computerElement.Element("StartTime").Value.ToString());
                 Console.WriteLine(computerElement.Element("EndTime").Value.ToString());
 
-                result.Computers.Add(new ActionResult(
-                                        Int32.Parse(computerElement.Attribute("ID").Value.ToString()),
-                                        computerElement.Attribute("Name").Value.ToString(),
-                                        computerElement.Element("Status").Value.ToString(),
-                                        Int32.Parse(computerElement.Element("ApplyCount").Value.ToString()),
-                                        Int32.Parse(computerElement.Element("RetryCount").Value.ToString()),
-                                        Int32.Parse(computerElement.Element("LineNumber").Value.ToString()),
-                                        computerElement.Element("StartTime").Value.ToString(),
-                                        computerElement.Element("EndTime").Value.ToString()
+                results.Add(new ActionResult(
+                                    id,                                                                         // Action ID
+                                    Int32.Parse(computerElement.Attribute("ID").Value.ToString()),              // Computer ID
+                                    computerElement.Element("Status").Value.ToString(),                         // Status
+                                    Int32.Parse(computerElement.Element("ApplyCount").Value.ToString()),        // Times applied
+                                    Int32.Parse(computerElement.Element("RetryCount").Value.ToString()),        // Times retried
+                                    Int32.Parse(computerElement.Element("LineNumber").Value.ToString()),        // Which script line is being executed
+                                    Convert.ToDateTime(computerElement.Element("StartTime").Value.ToString()),  // Time execution started
+                                    Convert.ToDateTime(computerElement.Element("EndTime").Value.ToString())     // Time execution ended
                     ));
             }
 
-            return result;
+            return results;
         }
 
         public XDocument Execute(RestRequest request)

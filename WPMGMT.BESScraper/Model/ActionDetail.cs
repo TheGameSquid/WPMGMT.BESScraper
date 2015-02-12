@@ -11,14 +11,12 @@ namespace WPMGMT.BESScraper.Model
             this.ActionID = aActionID;
             this.Status = aStatus;
             this.DateIssued = aDateIssued;
-            this.Computers = new List<ActionResult>();
         }
 
         public int ID { get; set; }
         public int ActionID { get; set; }
         public string Status { get; set; }
         public string DateIssued { get; set; }
-        public List<ActionResult> Computers { get; set; }
     }
 
     // DapperExtensions Mapper for ActionDetail Class
@@ -31,7 +29,6 @@ namespace WPMGMT.BESScraper.Model
             Map(f => f.ActionID).Column("ActionID").Key(KeyType.Assigned);
             Map(f => f.Status).Column("Status");
             Map(f => f.DateIssued).Column("DateIssued");
-            Map(f => f.Computers).Column("Computers").Ignore();
         }
     }
 }
