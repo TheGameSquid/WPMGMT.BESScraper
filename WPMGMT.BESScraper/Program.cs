@@ -28,6 +28,7 @@ namespace WPMGMT.BESScraper
             using (SqlConnection cn = new SqlConnection(@"Data Source=10.50.20.128\YPTOSQL002LP;Initial Catalog=YPTO_WPMGMT;Integrated Security=SSPI;"))
             {
                 cn.Open();
+                // TEST
                 var id = cn.Insert(action);
                 cn.Close();
             }
