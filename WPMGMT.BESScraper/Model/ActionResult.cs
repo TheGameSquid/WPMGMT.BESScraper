@@ -3,7 +3,7 @@ using RestSharp.Deserializers;
 
 namespace WPMGMT.BESScraper.Model
 {
-    class ActionResult
+    public class ActionResult
     {
         public ActionResult(int aComputerID, string aComputerName, string aStatus, int aState, int aApplyCount, int aRetryCount, string aStartTime, string aEndTime)
         {

@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 
 using RestSharp;
+using Dapper;
+using DapperExtensions;
 
 using WPMGMT.BESScraper.Model;
 
@@ -22,6 +24,13 @@ namespace WPMGMT.BESScraper
             WPMGMT.BESScraper.Model.Action action = new Model.Action();
             action.ID = 1855;
             action.Name = "TEST POC TROLL";
+
+            using (SqlConnection cn = new SqlConnection(@"Data Source=10.50.20.128\YPTOSQL002LP;Initial Catalog=YPTO_WPMGMT;Integrated Security=SSPI;"))
+            {
+                cn.Open();
+                var id = cn.Insert(action);
+                cn.Close();
+            }
 
             Console.Read();
         }

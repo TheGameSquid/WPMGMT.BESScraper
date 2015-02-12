@@ -17,7 +17,11 @@ namespace WPMGMT.BESScraper.Model
     {
         public ActionMapper()
         {
-            Table("BESEXT.ACTION");
+            // Define target Table and Schema
+            Schema("BESEXT");
+            Table("ACTION");
+
+            // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
             Map(f => f.ActionID).Column("ActionID").Key(KeyType.Assigned);
             Map(f => f.Name).Column("Name");
