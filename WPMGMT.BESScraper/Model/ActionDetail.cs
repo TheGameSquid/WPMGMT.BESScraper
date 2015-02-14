@@ -13,10 +13,10 @@ namespace WPMGMT.BESScraper.Model
             this.DateIssued = aDateIssued;
         }
 
-        public int ID { get; set; }
-        public int ActionID { get; set; }
-        public string Status { get; set; }
-        public string DateIssued { get; set; }
+        public int ID               { get; set; }       // Identity ID assigned by DB
+        public int ActionID         { get; set; }
+        public string Status        { get; set; }
+        public string DateIssued    { get; set; }
     }
 
     // DapperExtensions Mapper for ActionDetail Class
@@ -24,7 +24,11 @@ namespace WPMGMT.BESScraper.Model
     {
         public ActionDetailMapper()
         {
-            Table("BESEXT.ACTION_DETAIL");
+            // Define target Table and Schema
+            Schema("BESEXT");
+            Table("ACTION_DETAIL");
+
+            // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
             Map(f => f.ActionID).Column("ActionID").Key(KeyType.Assigned);
             Map(f => f.Status).Column("Status");

@@ -56,6 +56,16 @@ namespace WPMGMT.BESScraper
             return Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
         }
 
+        public List<Computer> GetComputers()
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("computers", Method.GET);
+
+            return Execute<List<Computer>>(request);
+        }
+
         public ActionDetail GetActionDetail(int id)
         {
             RestClient client = new RestClient(this.BaseURL);
@@ -89,16 +99,6 @@ namespace WPMGMT.BESScraper
 
             foreach (XElement computerElement in response.Element("BESAPI").Element("ActionResults").Elements("Computer"))
             {
-                Console.WriteLine(computerElement.Value);
-                Console.WriteLine(Int32.Parse(computerElement.Attribute("ID").Value.ToString()));
-                Console.WriteLine(computerElement.Attribute("Name").Value.ToString());
-                Console.WriteLine(computerElement.Element("Status").Value.ToString());
-                Console.WriteLine(Int32.Parse(computerElement.Element("ApplyCount").Value.ToString()));
-                Console.WriteLine(Int32.Parse(computerElement.Element("RetryCount").Value.ToString()));
-                Console.WriteLine(Int32.Parse(computerElement.Element("LineNumber").Value.ToString()));
-                Console.WriteLine(computerElement.Element("StartTime").Value.ToString());
-                Console.WriteLine(computerElement.Element("EndTime").Value.ToString());
-
                 results.Add(new ActionResult(
                                     id,                                                                         // Action ID
                                     Int32.Parse(computerElement.Attribute("ID").Value.ToString()),              // Computer ID

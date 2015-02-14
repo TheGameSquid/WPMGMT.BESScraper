@@ -17,15 +17,15 @@ namespace WPMGMT.BESScraper.Model
             this.EndTime = aEndTime;
         }
 
-        public int ID { get; set; }
-        public int ActionID { get; set; }
-        public int ComputerID { get; set; }    
-        public string Status { get; set; }
-        public int State { get; set; }
-        public int ApplyCount { get; set; }
-        public int RetryCount { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
+        public int ID               { get; set; }   // Identity ID assigned by DB
+        public int ActionID         { get; set; }
+        public int ComputerID       { get; set; }    
+        public string Status        { get; set; }
+        public int State            { get; set; }
+        public int ApplyCount       { get; set; }
+        public int RetryCount       { get; set; }
+        public DateTime StartTime   { get; set; }
+        public DateTime EndTime     { get; set; }
     }
 
     // DapperExtensions Mapper for ActionResult Class
@@ -33,7 +33,11 @@ namespace WPMGMT.BESScraper.Model
     {
         public ActionResultMapper()
         {
-            Table("BESEXT.ACTION_RESULT");
+            // Define target Table and Schema
+            Schema("BESEXT");
+            Table("ACTION_RESULT");
+
+            // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
             Map(f => f.ActionID).Column("ActionID");
             Map(f => f.ComputerID).Column("ComputerID");

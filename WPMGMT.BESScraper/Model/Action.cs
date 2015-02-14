@@ -5,9 +5,14 @@ namespace WPMGMT.BESScraper.Model
 {
     public class Action
     {
-        public int ID { get; set; }
-        public int ActionID { get; set; }
-        public string Name { get; set; }
+        public Action()
+        {
+            // Empty constructor for use by RestSharp
+        }
+
+        public int ID           { get; set; }       // Identity ID assigned by DB
+        public int ActionID     { get; set; }       // Identity ID assigned by API
+        public string Name      { get; set; }
     }
 
     // DapperExtensions Mapper for Action Class
