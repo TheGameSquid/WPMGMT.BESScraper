@@ -58,7 +58,9 @@
     <Compile Include="Model\ActionDetail.cs" />
     <Compile Include="Model\ActionResult.cs" />
     <Compile Include="Model\Computer.cs" />
+    <Compile Include="Model\ComputerGroup.cs" />
     <Compile Include="Model\Model.cs" />
+    <Compile Include="Model\Site.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources.cs" />

@@ -33,6 +33,8 @@ namespace WPMGMT.BESScraper
             //}
 
             List<Computer> computers = besApi.GetComputers();
+            List<Site> sites = besApi.GetSites();
+            List<ComputerGroup> groups = besApi.GetComputerGroups();
 
             Console.Read();
         }

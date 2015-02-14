@@ -58,16 +58,6 @@ namespace WPMGMT.BESScraper
             return Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
         }
 
-        public List<Computer> GetComputers()
-        {
-            RestClient client = new RestClient(this.BaseURL);
-            client.Authenticator = this.Authenticator;
-
-            RestRequest request = new RestRequest("computers", Method.GET);
-
-            return Execute<List<Computer>>(request);
-        }
-
         public ActionDetail GetActionDetail(int id)
         {
             RestClient client = new RestClient(this.BaseURL);
@@ -114,6 +104,83 @@ namespace WPMGMT.BESScraper
             }
 
             return results;
+        }
+
+        public List<Computer> GetComputers()
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("computers", Method.GET);
+
+            return Execute<List<Computer>>(request);
+        }
+
+        public List<ComputerGroup> GetComputerGroups()
+        {
+            List<ComputerGroup> groups = new List<ComputerGroup>();
+
+            foreach (Site site in GetSites())
+            {
+                groups.AddRange(GetComputerGroups(site.Name));
+            }
+
+            return groups;
+        }
+
+        public List<ComputerGroup> GetComputerGroups(string site)
+        {
+            List<ComputerGroup> groups = new List<ComputerGroup>();
+
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("computergroups/{site}", Method.GET);
+            request.AddUrlSegment("site", site);
+
+            XDocument response = Execute(request);
+
+            foreach(XElement groupElement in response.Element("BESAPI").Elements("ComputerGroup"))
+            {
+                groups.Add(GetComputerGroup(site, Int32.Parse(groupElement.Element("ID").Value)));
+            }
+
+            return groups;
+        }
+
+        public ComputerGroup GetComputerGroup(string site, int id)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("computergroups/{site}/{id}", Method.GET);
+            request.AddUrlSegment("site", site);
+            request.AddUrlSegment("id", id.ToString());
+
+            ComputerGroup group = Execute<ComputerGroup>(request);
+            group.GroupID = id;
+
+            return group;
+        }
+
+        public List<Site> GetSites()
+        {
+            List<Site> sites = new List<Site>();
+
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("sites", Method.GET);
+
+            // Execute the request
+            XDocument response = Execute(request);
+
+            foreach (XElement siteElement in response.Element("BESAPI").Elements())
+            {
+                sites.Add(new Site(siteElement.Element("Name").Value.ToString(), siteElement.Name.ToString()));
+            }
+
+            return sites;
         }
 
         public XDocument Execute(RestRequest request)
