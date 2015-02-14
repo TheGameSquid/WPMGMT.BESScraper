@@ -16,21 +16,23 @@ namespace WPMGMT.BESScraper
     {
         static void Main(string[] args)
         {
-            BesApi besApi = new BesApi(new Uri("https://pc120006933:52311/api/"), "iemadmin", "bigfix");
+            BesApi besApi = new BesApi(new Uri("https://DEIMV201.BelgianRail.be:52311/api/"), "iemadmin", "bigfix");
             //WPMGMT.BESScraper.Model.Action action = besApi.GetAction(1854);
             //Actions actions = besApi.GetActions();
             //ActionDetail detail = besApi.GetActionDetail(1854);
 
-            WPMGMT.BESScraper.Model.Action action = new Model.Action();
-            action.ID = 1855;
-            action.Name = "TEST POC TROLL";
+            //WPMGMT.BESScraper.Model.Action action = new Model.Action();
+            //action.ID = 1855;
+            //action.Name = "TEST POC TROLL";
 
-            using (SqlConnection cn = new SqlConnection(@"Data Source=10.50.20.128\YPTOSQL002LP;Initial Catalog=YPTO_WPMGMT;Integrated Security=SSPI;"))
-            {
-                cn.Open();
-                var id = cn.Insert(action);
-                cn.Close();
-            }
+            //using (SqlConnection cn = new SqlConnection(@"Data Source=10.50.20.128\YPTOSQL002LP;Initial Catalog=YPTO_WPMGMT;Integrated Security=SSPI;"))
+            //{
+            //    cn.Open();
+            //    var id = cn.Insert(action);
+            //    cn.Close();
+            //}
+
+            List<Computer> computers = besApi.GetComputers();
 
             Console.Read();
         }
