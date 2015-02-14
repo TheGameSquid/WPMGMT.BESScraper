@@ -57,6 +57,7 @@
     <Compile Include="Model\Action.cs" />
     <Compile Include="Model\ActionDetail.cs" />
     <Compile Include="Model\ActionResult.cs" />
+    <Compile Include="Model\Computer.cs" />
     <Compile Include="Model\Model.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
