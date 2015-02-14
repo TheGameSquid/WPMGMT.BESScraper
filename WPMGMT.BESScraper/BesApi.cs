@@ -41,6 +41,8 @@ namespace WPMGMT.BESScraper
             this.authenticator = new HttpBasicAuthenticator(aUsername, aPassword);
         }
 
+
+        // Methods
         public WPMGMT.BESScraper.Model.Action GetAction(int id)
         {
             return GetActions().SingleOrDefault(x => x.ID == id);
