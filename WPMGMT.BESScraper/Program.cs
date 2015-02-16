@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Net;
@@ -17,6 +18,7 @@ namespace WPMGMT.BESScraper
         static void Main(string[] args)
         {
             BesApi besApi = new BesApi(new Uri("https://DEIMV201.BelgianRail.be:52311/api/"), "iemadmin", "bigfix");
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
             //WPMGMT.BESScraper.Model.Action action = besApi.GetAction(1854);
             //Actions actions = besApi.GetActions();
             //ActionDetail detail = besApi.GetActionDetail(1854);
@@ -35,6 +37,7 @@ namespace WPMGMT.BESScraper
             //List<Computer> computers = besApi.GetComputers();
             //List<Site> sites = besApi.GetSites();
             List<ComputerGroup> groups = besApi.GetComputerGroups();
+            List<Site> sites = besApi.GetSites();
 
             Console.Read();
         }

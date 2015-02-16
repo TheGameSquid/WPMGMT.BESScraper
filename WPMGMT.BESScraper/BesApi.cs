@@ -169,7 +169,25 @@ namespace WPMGMT.BESScraper
             ComputerGroup group = Execute<ComputerGroup>(request);
             group.GroupID = id;
 
+            // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
+            // Let's fetch the Site from the DB first
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            var siteBALLS = besDb.SelectSite(site.Name);
+            group.SiteID = site.ID;
+
             return group;
+        }
+
+        public List<ComputerGroupMember> GetGroupMembers()
+        {
+            List<ComputerGroup> groups = new List<ComputerGroup>();
+
+            foreach (ComputerGroup group in groups)
+            {
+
+            }
+
+            return null;
         }
 
         public List<Site> GetSites()

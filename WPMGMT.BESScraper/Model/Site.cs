@@ -11,12 +11,12 @@ namespace WPMGMT.BESScraper.Model
             this.Type = aType;
         }
 
-        public int ID       { get; set; }
+        public int ID       { get; set; }   // Identity ID assigned by DB
         public string Name  { get; set; }
         public string Type  { get; set; }
     }
 
-    // DapperExtensions Mapper for ActionDetail Class
+    // DapperExtensions Mapper for Site Class
     public class SiteMapper : ClassMapper<Site>
     {
         public SiteMapper()

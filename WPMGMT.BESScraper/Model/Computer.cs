@@ -18,7 +18,7 @@ namespace WPMGMT.BESScraper.Model
         public DateTime LastReportTime      { get; set; }
     }
 
-    // DapperExtensions Mapper for ActionDetail Class
+    // DapperExtensions Mapper for Computer Class
     public class ComputerMapper : ClassMapper<Computer>
     {
         public ComputerMapper()
