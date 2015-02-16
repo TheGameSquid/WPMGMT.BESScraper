@@ -172,22 +172,59 @@ namespace WPMGMT.BESScraper
             // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
             // Let's fetch the Site from the DB first
             BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
-            var siteBALLS = besDb.SelectSite(site.Name);
-            group.SiteID = site.ID;
+            Site dbSite = besDb.SelectSite(site.Name);
+
+            // Assign SiteID if the corresponding Site was found in the DB
+            if (dbSite != null)
+            {
+                group.SiteID = dbSite.ID;
+            }
 
             return group;
         }
 
         public List<ComputerGroupMember> GetGroupMembers()
         {
-            List<ComputerGroup> groups = new List<ComputerGroup>();
+            List<ComputerGroupMember> members = new List<ComputerGroupMember>();
 
-            foreach (ComputerGroup group in groups)
+            foreach (ComputerGroup group in GetComputerGroups())
             {
-
+                members.AddRange(GetGroupMembers(group));
             }
 
-            return null;
+            return members;
+        }
+
+        public List<ComputerGroupMember> GetGroupMembers(ComputerGroup group)
+        {
+            List<ComputerGroupMember> members = new List<ComputerGroupMember>();
+
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            Site dbSite = besDb.SelectSite(group.SiteID);
+
+            if ((dbSite != null) && (dbSite.ID != null))
+            {
+                RestClient client = new RestClient(this.BaseURL);
+                client.Authenticator = this.Authenticator;
+
+                RestRequest request = new RestRequest("computergroup/{sitetype}/{site}/{id}/computers", Method.GET);
+                request.AddUrlSegment("sitetype", dbSite.Type);
+                request.AddUrlSegment("site", dbSite.Name);
+                request.AddUrlSegment("id", group.GroupID.ToString());
+
+                XDocument response = Execute(request);
+
+                if (response.Element("BESAPI").Elements("Computer") != null)
+                {
+                    foreach (XElement computerElement in response.Element("BESAPI").Elements("Computer"))
+                    {
+                        Uri resourceUri = new Uri(computerElement.Attribute("Resource").Value.ToString());
+                        members.Add(new ComputerGroupMember(group.GroupID, Int32.Parse(resourceUri.Segments.Last())));
+                    }
+                }
+            }
+
+            return members;
         }
 
         public List<Site> GetSites()

@@ -36,10 +36,12 @@ namespace WPMGMT.BESScraper
 
             //List<Computer> computers = besApi.GetComputers();
             //List<Site> sites = besApi.GetSites();
-            List<ComputerGroup> groups = besApi.GetComputerGroups();
-            List<Site> sites = besApi.GetSites();
+            //List<Site> sites = besApi.GetSites();
+            //besDb.InsertSites(sites);
 
-            besDb.InsertSites(sites);
+            //List<ComputerGroup> groups = besApi.GetComputerGroups();
+
+            List<ComputerGroupMember> members = besApi.GetGroupMembers();
 
             Console.Read();
         }

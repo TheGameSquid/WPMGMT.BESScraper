@@ -19,6 +19,16 @@ namespace WPMGMT.BESScraper
         public SqlConnection Connection     { get; private set; }
         public string ConnectionString      { get; private set; }
 
+        public Site SelectSite(int id)
+        {
+            IEnumerable<Site> sites = this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE ID = @Id", new { Id = id });
+            if (sites.Count() > 0)
+            {
+                return sites.Single();
+            }
+            return null;
+        }
+
         public Site SelectSite(string name)
         {
             IEnumerable<Site> sites = this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE Name = @Name", new { Name = name });
