@@ -21,15 +21,20 @@ namespace WPMGMT.BESScraper
 
         public Site SelectSite(string name)
         {
-            return this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE Name = @Name", new { Name = name }).Single();
+            IEnumerable<Site> sites = this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE Name = @Name", new { Name = name });
+            if (sites.Count() > 0)
+            {
+                return sites.Single();
+            }
+            return null;       
         }
 
         public void InsertSite(Site site)
         {
-            if (SelectSite(site.Name) != null)
+            if (SelectSite(site.Name) == null)
             {
                 Connection.Open();
-                Site newSite = Connection.Insert<Site>(site);
+                int id = Connection.Insert<Site>(site);
                 Connection.Close();
             }
         }

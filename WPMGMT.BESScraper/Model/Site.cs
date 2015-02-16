@@ -5,6 +5,11 @@ namespace WPMGMT.BESScraper.Model
 {
     public class Site
     {
+        public Site()
+        {
+            // Constructor for Dapper and RestSharp
+        }
+
         public Site(string aName, string aType)
         {
             this.Name = aName;
