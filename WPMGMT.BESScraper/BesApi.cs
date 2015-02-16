@@ -122,25 +122,33 @@ namespace WPMGMT.BESScraper
 
             foreach (Site site in GetSites())
             {
-                groups.AddRange(GetComputerGroups(site.Name));
+                groups.AddRange(GetComputerGroups(site));
             }
 
             return groups;
         }
 
-        public List<ComputerGroup> GetComputerGroups(string site)
+        public List<ComputerGroup> GetComputerGroups(Site site)
         {
             List<ComputerGroup> groups = new List<ComputerGroup>();
 
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
-            RestRequest request = new RestRequest("computergroups/{site}", Method.GET);
-            request.AddUrlSegment("site", site);
+            RestRequest request = new RestRequest("computergroups/{sitetype}/{site}", Method.GET);
+            request.AddUrlSegment("site", site.Name);
+            request.AddUrlSegment("sitetype", site.Type);
+
+            // TODO: Handle master action site properly
+            if (site.Type == "master")
+            {
+                request = new RestRequest("computergroups/{sitetype}", Method.GET);
+                request.AddUrlSegment("sitetype", site.Type);
+            }
 
             XDocument response = Execute(request);
 
-            foreach(XElement groupElement in response.Element("BESAPI").Elements("ComputerGroup"))
+            foreach (XElement groupElement in response.Element("BESAPI").Elements("ComputerGroup"))
             {
                 groups.Add(GetComputerGroup(site, Int32.Parse(groupElement.Element("ID").Value)));
             }
@@ -148,13 +156,14 @@ namespace WPMGMT.BESScraper
             return groups;
         }
 
-        public ComputerGroup GetComputerGroup(string site, int id)
+        public ComputerGroup GetComputerGroup(Site site, int id)
         {
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
-            RestRequest request = new RestRequest("computergroups/{site}/{id}", Method.GET);
-            request.AddUrlSegment("site", site);
+            RestRequest request = new RestRequest("computergroup/{sitetype}/{site}/{id}", Method.GET);
+            request.AddUrlSegment("sitetype", site.Type);
+            request.AddUrlSegment("site", site.Name);
             request.AddUrlSegment("id", id.ToString());
 
             ComputerGroup group = Execute<ComputerGroup>(request);
@@ -175,9 +184,19 @@ namespace WPMGMT.BESScraper
             // Execute the request
             XDocument response = Execute(request);
 
+            // TODO: Handle spaces in URLs correctly
+            // TODO: Caps/NoCaps nonsense
             foreach (XElement siteElement in response.Element("BESAPI").Elements())
             {
-                sites.Add(new Site(siteElement.Element("Name").Value.ToString(), siteElement.Name.ToString()));
+                if (siteElement.Name.ToString() == "ActionSite")
+                {
+                    sites.Add(new Site(siteElement.Element("Name").Value.ToString(), "master"));
+                }
+                else
+                {
+                    sites.Add(new Site(siteElement.Element("Name").Value.ToString(), siteElement.Name.ToString().Replace("Site", "").ToLower()));
+                }
+                
             }
 
             return sites;

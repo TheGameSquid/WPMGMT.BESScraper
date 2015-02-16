@@ -1,4 +1,5 @@
 ﻿using System;
+using DapperExtensions.Mapper;
 using RestSharp.Deserializers;
 
 namespace WPMGMT.BESScraper.Model
@@ -15,5 +16,22 @@ namespace WPMGMT.BESScraper.Model
         [DeserializeAs(Name = "Title")]
         public string Name      { get; set; }
         public string Domain    { get; set; }
+    }
+
+    // DapperExtensions Mapper for ActionDetail Class
+    public class ComputerGroupMapper : ClassMapper<ComputerGroup>
+    {
+        public ComputerGroupMapper()
+        {
+            // Define target Table and Schema
+            Schema("BESEXT");
+            Table("GROUP");
+
+            // Define target columns
+            Map(f => f.ID).Column("ID").Key(KeyType.Identity);
+            Map(f => f.GroupID).Column("GroupID").Key(KeyType.Assigned);
+            Map(f => f.Name).Column("Name");
+            Map(f => f.Domain).Column("Domain");
+        }
     }
 }
