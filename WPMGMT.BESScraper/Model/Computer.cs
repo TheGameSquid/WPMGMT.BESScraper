@@ -1,5 +1,6 @@
 ﻿using System;
 using DapperExtensions.Mapper;
+using RestSharp.Deserializers;
 
 namespace WPMGMT.BESScraper.Model
 {
@@ -10,12 +11,14 @@ namespace WPMGMT.BESScraper.Model
             // Empty constructor used by RestSharp
         }
 
+        [DeserializeAs(Name = "IgnoreID")]
         public int ID                       { get; set; }       // Identity ID assigned by DB
+        [DeserializeAs(Name = "ID")]
         public int ComputerID               { get; set; }       // Identity ID assigned by API
         public DateTime LastReportTime      { get; set; }
     }
 
-    // DapperExtensions Mapper for ActionDetail Class
+    // DapperExtensions Mapper for Computer Class
     public class ComputerMapper : ClassMapper<Computer>
     {
         public ComputerMapper()

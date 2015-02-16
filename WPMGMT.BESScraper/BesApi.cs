@@ -41,6 +41,8 @@ namespace WPMGMT.BESScraper
             this.authenticator = new HttpBasicAuthenticator(aUsername, aPassword);
         }
 
+
+        // Methods
         public WPMGMT.BESScraper.Model.Action GetAction(int id)
         {
             return GetActions().SingleOrDefault(x => x.ID == id);
@@ -54,16 +56,6 @@ namespace WPMGMT.BESScraper
             RestRequest request = new RestRequest("actions", Method.GET);
 
             return Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
-        }
-
-        public List<Computer> GetComputers()
-        {
-            RestClient client = new RestClient(this.BaseURL);
-            client.Authenticator = this.Authenticator;
-
-            RestRequest request = new RestRequest("computers", Method.GET);
-
-            return Execute<List<Computer>>(request);
         }
 
         public ActionDetail GetActionDetail(int id)
@@ -112,6 +104,157 @@ namespace WPMGMT.BESScraper
             }
 
             return results;
+        }
+
+        public List<Computer> GetComputers()
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("computers", Method.GET);
+
+            return Execute<List<Computer>>(request);
+        }
+
+        public List<ComputerGroup> GetComputerGroups()
+        {
+            List<ComputerGroup> groups = new List<ComputerGroup>();
+
+            foreach (Site site in GetSites())
+            {
+                groups.AddRange(GetComputerGroups(site));
+            }
+
+            return groups;
+        }
+
+        public List<ComputerGroup> GetComputerGroups(Site site)
+        {
+            List<ComputerGroup> groups = new List<ComputerGroup>();
+
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("computergroups/{sitetype}/{site}", Method.GET);
+            request.AddUrlSegment("site", site.Name);
+            request.AddUrlSegment("sitetype", site.Type);
+
+            // TODO: Handle master action site properly
+            if (site.Type == "master")
+            {
+                request = new RestRequest("computergroups/{sitetype}", Method.GET);
+                request.AddUrlSegment("sitetype", site.Type);
+            }
+
+            XDocument response = Execute(request);
+
+            foreach (XElement groupElement in response.Element("BESAPI").Elements("ComputerGroup"))
+            {
+                groups.Add(GetComputerGroup(site, Int32.Parse(groupElement.Element("ID").Value)));
+            }
+
+            return groups;
+        }
+
+        public ComputerGroup GetComputerGroup(Site site, int id)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("computergroup/{sitetype}/{site}/{id}", Method.GET);
+            request.AddUrlSegment("sitetype", site.Type);
+            request.AddUrlSegment("site", site.Name);
+            request.AddUrlSegment("id", id.ToString());
+
+            ComputerGroup group = Execute<ComputerGroup>(request);
+            group.GroupID = id;
+
+            // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
+            // Let's fetch the Site from the DB first
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            Site dbSite = besDb.SelectSite(site.Name);
+
+            // Assign SiteID if the corresponding Site was found in the DB
+            if (dbSite != null)
+            {
+                group.SiteID = dbSite.ID;
+            }
+
+            return group;
+        }
+
+        public List<ComputerGroupMember> GetGroupMembers()
+        {
+            List<ComputerGroupMember> members = new List<ComputerGroupMember>();
+
+            foreach (ComputerGroup group in GetComputerGroups())
+            {
+                members.AddRange(GetGroupMembers(group));
+            }
+
+            return members;
+        }
+
+        public List<ComputerGroupMember> GetGroupMembers(ComputerGroup group)
+        {
+            List<ComputerGroupMember> members = new List<ComputerGroupMember>();
+
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            Site dbSite = besDb.SelectSite(group.SiteID);
+
+            if ((dbSite != null) && (dbSite.ID != null))
+            {
+                RestClient client = new RestClient(this.BaseURL);
+                client.Authenticator = this.Authenticator;
+
+                RestRequest request = new RestRequest("computergroup/{sitetype}/{site}/{id}/computers", Method.GET);
+                request.AddUrlSegment("sitetype", dbSite.Type);
+                request.AddUrlSegment("site", dbSite.Name);
+                request.AddUrlSegment("id", group.GroupID.ToString());
+
+                XDocument response = Execute(request);
+
+                if (response.Element("BESAPI").Elements("Computer") != null)
+                {
+                    foreach (XElement computerElement in response.Element("BESAPI").Elements("Computer"))
+                    {
+                        Uri resourceUri = new Uri(computerElement.Attribute("Resource").Value.ToString());
+                        members.Add(new ComputerGroupMember(group.GroupID, Int32.Parse(resourceUri.Segments.Last())));
+                    }
+                }
+            }
+
+            return members;
+        }
+
+        public List<Site> GetSites()
+        {
+            List<Site> sites = new List<Site>();
+
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("sites", Method.GET);
+
+            // Execute the request
+            XDocument response = Execute(request);
+
+            // TODO: Handle spaces in URLs correctly
+            // TODO: Caps/NoCaps nonsense
+            foreach (XElement siteElement in response.Element("BESAPI").Elements())
+            {
+                if (siteElement.Name.ToString() == "ActionSite")
+                {
+                    sites.Add(new Site(siteElement.Element("Name").Value.ToString(), "master"));
+                }
+                else
+                {
+                    sites.Add(new Site(siteElement.Element("Name").Value.ToString(), siteElement.Name.ToString().Replace("Site", "").ToLower()));
+                }
+                
+            }
+
+            return sites;
         }
 
         public XDocument Execute(RestRequest request)
