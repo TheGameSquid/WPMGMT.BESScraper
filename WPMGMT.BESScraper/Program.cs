@@ -27,15 +27,13 @@ namespace WPMGMT.BESScraper
             //action.ID = 1855;
             //action.Name = "TEST POC TROLL";
 
-<<<<<<< HEAD
-            using (SqlConnection cn = new SqlConnection(@"Data Source=10.50.20.128\YPTOSQL002LP;Initial Catalog=YPTO_WPMGMT;Integrated Security=SSPI;"))
-            {
-                cn.Open();
-                // TEST
-                var id = cn.Insert(action);
-                cn.Close();
-            }
-=======
+            //using (SqlConnection cn = new SqlConnection(@"Data Source=10.50.20.128\YPTOSQL002LP;Initial Catalog=YPTO_WPMGMT;Integrated Security=SSPI;"))
+            //{
+            //    cn.Open();
+            //    // TEST
+            //    var id = cn.Insert(action);
+            //    cn.Close();
+            //}
             //using (SqlConnection cn = new SqlConnection(@"Data Source=10.50.20.128\YPTOSQL002LP;Initial Catalog=YPTO_WPMGMT;Integrated Security=SSPI;"))
             //{
             //    cn.Open();
@@ -43,10 +41,7 @@ namespace WPMGMT.BESScraper
             //    cn.Close();
             //}
 
-<<<<<<< HEAD
-            List<Computer> computers = besApi.GetComputers();
->>>>>>> dev
-=======
+            //List<Computer> computers = besApi.GetComputers();
             //List<Computer> computers = besApi.GetComputers();
             //List<Site> sites = besApi.GetSites();
             //List<Site> sites = besApi.GetSites();
@@ -55,7 +50,6 @@ namespace WPMGMT.BESScraper
             //List<ComputerGroup> groups = besApi.GetComputerGroups();
 
             List<ComputerGroupMember> members = besApi.GetGroupMembers();
->>>>>>> dev
 
             Console.Read();
         }
