@@ -50,16 +50,18 @@ namespace WPMGMT.BESScraper
 
             //List<ComputerGroup> groups = besApi.GetComputerGroups();
 
-            List<ComputerGroupMember> members = besApi.GetGroupMembers();
+            //List<ComputerGroupMember> members = besApi.GetGroupMembers();
 
-            List<WPMGMT.BESScraper.Model.Action> actions = besApi.GetActions();
-            besDb.InsertActions(actions);
+            //List<WPMGMT.BESScraper.Model.Action> actions = besApi.GetActions();
+            //besDb.InsertActions(actions);
 
-            List<ActionDetail> details = new List<ActionDetail>();
-            foreach (WPMGMT.BESScraper.Model.Action action in besApi.GetActions())
-            {
-                details.Add(besApi.GetActionDetail(action.ActionID));
-            }
+            //List<ActionDetail> details = new List<ActionDetail>();
+            //foreach (WPMGMT.BESScraper.Model.Action action in besApi.GetActions())
+            //{
+            //    details.Add(besApi.GetActionDetail(action.ActionID));
+            //}
+
+            List<Analysis> analyses = besApi.GetAnalyses();
 
             Console.Read();
         }

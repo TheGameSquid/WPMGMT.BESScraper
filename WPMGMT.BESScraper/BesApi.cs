@@ -106,6 +106,45 @@ namespace WPMGMT.BESScraper
             return results;
         }
 
+        public List<Analysis> GetAnalyses()
+        {
+            // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
+            // For this reason we're choosing to get the sites from the DB instead of the REST API here
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            List<Site> sites = besDb.SelectSites();
+
+            List<Analysis> analyses = new List<Analysis>();
+
+            foreach (Site site in sites)
+            {
+                analyses.AddRange(GetAnalyses(site));
+            }
+
+            return analyses;
+        }
+
+        public List<Analysis> GetAnalyses(Site site)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            RestRequest request = new RestRequest("analyses/{site}/{siteype}", Method.GET);
+            request.AddUrlSegment("sitetype", site.Type);
+            request.AddUrlSegment("site", site.Name);
+
+            List<Analysis> analyses = Execute<List<Analysis>>(request);
+
+            // Prepare the DB API object for later
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+
+            foreach (Analysis analysis in analyses)
+            {
+                analysis.SiteID = site.ID;
+            }
+
+            return analyses;
+        }
+
         public List<Computer> GetComputers()
         {
             RestClient client = new RestClient(this.BaseURL);

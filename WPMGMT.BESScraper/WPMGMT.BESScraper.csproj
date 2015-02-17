@@ -65,6 +65,7 @@
     <Compile Include="Model\Action.cs" />
     <Compile Include="Model\ActionDetail.cs" />
     <Compile Include="Model\ActionResult.cs" />
+    <Compile Include="Model\Analysis.cs" />
     <Compile Include="Model\Computer.cs" />
     <Compile Include="Model\ComputerGroup.cs" />
     <Compile Include="Model\ComputerGroupMember.cs" />

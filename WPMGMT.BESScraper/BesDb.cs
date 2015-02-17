@@ -69,6 +69,11 @@ namespace WPMGMT.BESScraper
             return null;       
         }
 
+        public List<Site> SelectSites()
+        {
+            return (List<Site>)this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE");
+        }
+
         public void InsertAction(WPMGMT.BESScraper.Model.Action action)
         {
             if (SelectAction(action.Name) == null)
