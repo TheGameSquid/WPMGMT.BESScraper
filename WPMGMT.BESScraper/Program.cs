@@ -15,6 +15,7 @@ namespace WPMGMT.BESScraper
 {
     class Program
     {
+        // TODO: DateTimeFormat
         static void Main(string[] args)
         {
             BesApi besApi = new BesApi(new Uri("https://DEIMV201.BelgianRail.be:52311/api/"), "iemadmin", "bigfix");
@@ -50,6 +51,15 @@ namespace WPMGMT.BESScraper
             //List<ComputerGroup> groups = besApi.GetComputerGroups();
 
             List<ComputerGroupMember> members = besApi.GetGroupMembers();
+
+            List<WPMGMT.BESScraper.Model.Action> actions = besApi.GetActions();
+            besDb.InsertActions(actions);
+
+            List<ActionDetail> details = new List<ActionDetail>();
+            foreach (WPMGMT.BESScraper.Model.Action action in besApi.GetActions())
+            {
+                details.Add(besApi.GetActionDetail(action.ActionID));
+            }
 
             Console.Read();
         }

@@ -19,6 +19,36 @@ namespace WPMGMT.BESScraper
         public SqlConnection Connection     { get; private set; }
         public string ConnectionString      { get; private set; }
 
+        public WPMGMT.BESScraper.Model.Action SelectAction(int id)
+        {
+            IEnumerable<WPMGMT.BESScraper.Model.Action> actions = this.Connection.Query<WPMGMT.BESScraper.Model.Action>("SELECT * FROM BESEXT.ACTION WHERE ID = @Id", new { Id = id });
+            if (actions.Count() > 0)
+            {
+                return actions.Single();
+            }
+            return null;
+        }
+
+        public WPMGMT.BESScraper.Model.Action SelectAction(string name)
+        {
+            IEnumerable<WPMGMT.BESScraper.Model.Action> actions = this.Connection.Query<WPMGMT.BESScraper.Model.Action>("SELECT * FROM BESEXT.ACTION WHERE Name = @Name", new { Name = name });
+            if (actions.Count() > 0)
+            {
+                return actions.Single();
+            }
+            return null;
+        }
+
+        public ActionDetail SelectActionDetail(int id)
+        {
+            IEnumerable<ActionDetail> details = this.Connection.Query<ActionDetail>("SELECT * FROM BESEXT.ACTION_DETAIL WHERE ActionID = @Id", new { Id = id });
+            if (details.Count() > 0)
+            {
+                return details.Single();
+            }
+            return null;
+        }
+
         public Site SelectSite(int id)
         {
             IEnumerable<Site> sites = this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE ID = @Id", new { Id = id });
@@ -37,6 +67,42 @@ namespace WPMGMT.BESScraper
                 return sites.Single();
             }
             return null;       
+        }
+
+        public void InsertAction(WPMGMT.BESScraper.Model.Action action)
+        {
+            if (SelectAction(action.Name) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<WPMGMT.BESScraper.Model.Action>(action);
+                Connection.Close();
+            }
+        }
+
+        public void InsertActions(List<WPMGMT.BESScraper.Model.Action> actions)
+        {
+            foreach (WPMGMT.BESScraper.Model.Action action in actions)
+            {
+                InsertAction(action);
+            }
+        }
+
+        public void InsertActionDetail(ActionDetail detail)
+        {
+            if (SelectActionDetail(detail.ActionID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<ActionDetail>(detail);
+                Connection.Close();
+            }
+        }
+
+        public void InsertActionDetails(List<ActionDetail> details)
+        {
+            foreach (ActionDetail detail in details)
+            {
+                InsertActionDetail(detail);
+            }
         }
 
         public void InsertSite(Site site)

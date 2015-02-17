@@ -30,7 +30,7 @@ namespace WPMGMT.BESScraper.Model
 
             // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
-            Map(f => f.ActionID).Column("ActionID").Key(KeyType.Assigned);
+            Map(f => f.ActionID).Column("ActionID");
             Map(f => f.Status).Column("Status");
             Map(f => f.DateIssued).Column("DateIssued");
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using DapperExtensions.Mapper;
+using RestSharp.Deserializers;
 
 namespace WPMGMT.BESScraper.Model
 {
@@ -7,10 +8,12 @@ namespace WPMGMT.BESScraper.Model
     {
         public Action()
         {
-            // Empty constructor for use by RestSharp
+            // Constructor for Dapper and RestSharp
         }
 
+        [DeserializeAs(Name = "IgnoreID")]
         public int ID           { get; set; }       // Identity ID assigned by DB
+        [DeserializeAs(Name = "ID")]
         public int ActionID     { get; set; }       // Identity ID assigned by API
         public string Name      { get; set; }
     }
@@ -26,7 +29,7 @@ namespace WPMGMT.BESScraper.Model
 
             // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
-            Map(f => f.ActionID).Column("ActionID").Key(KeyType.Assigned);
+            Map(f => f.ActionID).Column("ActionID");
             Map(f => f.Name).Column("Name");
         }
     }
