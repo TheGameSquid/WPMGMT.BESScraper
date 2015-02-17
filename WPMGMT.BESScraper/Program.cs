@@ -10,6 +10,7 @@ using Dapper;
 using DapperExtensions;
 
 using WPMGMT.BESScraper.Model;
+using WPMGMT.BESScraper.API;
 
 namespace WPMGMT.BESScraper
 {
