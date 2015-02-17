@@ -16,7 +16,7 @@ namespace WPMGMT.BESScraper.Model
         public int ComputerID   { get; set; }
     }
 
-    // DapperExtensions Mapper for ActionDetail Class
+    // DapperExtensions Mapper for ComputerGroupMember Class
     public class ComputerGroupMemberMapper : ClassMapper<ComputerGroupMember>
     {
         public ComputerGroupMemberMapper()

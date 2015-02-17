@@ -8,7 +8,7 @@ namespace WPMGMT.BESScraper.Model
     {
         public Action()
         {
-            // Constructor for Dapper and RestSharp
+            // Empty constructor for Dapper and RestSharp
         }
 
         [DeserializeAs(Name = "IgnoreID")]

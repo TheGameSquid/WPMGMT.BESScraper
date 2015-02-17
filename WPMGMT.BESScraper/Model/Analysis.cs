@@ -7,7 +7,7 @@ namespace WPMGMT.BESScraper.Model
     {
         public Analysis()
         {
-            // Empty constructor used by RestSharp
+            // Empty constructor for Dapper and RestSharp
         }
 
         public int ID           { get; set; }       // Identity ID assigned by DB
@@ -16,7 +16,7 @@ namespace WPMGMT.BESScraper.Model
         public string Name      { get; set; }
     }
 
-    // DapperExtensions Mapper for ActionDetail Class
+    // DapperExtensions Mapper for Analysis Class
     public class AnalysisMapper : ClassMapper<Analysis>
     {
         public AnalysisMapper()
