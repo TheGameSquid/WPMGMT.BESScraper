@@ -134,15 +134,52 @@ namespace WPMGMT.BESScraper
 
             List<Analysis> analyses = Execute<List<Analysis>>(request);
 
-            // Prepare the DB API object for later
-            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
-
             foreach (Analysis analysis in analyses)
             {
                 analysis.SiteID = site.ID;
             }
 
             return analyses;
+        }
+
+        public List<AnalysisProperty> GetAnalysisProperties()
+        {
+            List<AnalysisProperty> properties = new List<AnalysisProperty>();
+            List<Analysis> analyses = GetAnalyses();
+
+            foreach (Analysis analysis in analyses)
+            {
+                properties.AddRange(GetAnalysisProperties(analysis));
+            }
+
+            return properties;
+        }
+
+        public List<AnalysisProperty> GetAnalysisProperties(Analysis analysis)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
+            // For this reason we're fetching the list of sites from the DB again, so we can resolve ID->Name
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            Site site = besDb.SelectSite(analysis.SiteID);
+
+            RestRequest request = new RestRequest("analysis/{site}/{siteype}/{analysisid}", Method.GET);
+            request.AddUrlSegment("sitetype", site.Type);
+            request.AddUrlSegment("site", site.Name);
+            request.AddUrlSegment("analysisid", analysis.Name);
+
+            XDocument response = Execute(request);
+
+            List<AnalysisProperty> properties = new List<AnalysisProperty>();
+
+            foreach (XElement propertyElement in response.Element("BESAPI").Elements("Property"))
+            {
+                properties.Add(new AnalysisProperty(analysis.ID, propertyElement.Attribute("Name").Value.ToString()));
+            }
+
+            return properties;
         }
 
         public List<Computer> GetComputers()
