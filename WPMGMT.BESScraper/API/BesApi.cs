@@ -58,13 +58,13 @@ namespace WPMGMT.BESScraper.API
             return Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
         }
 
-        public ActionDetail GetActionDetail(int id)
+        public ActionDetail GetActionDetail(WPMGMT.BESScraper.Model.Action action)
         {
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
             RestRequest request = new RestRequest("action/{id}/status", Method.GET);
-            request.AddUrlSegment("id", id.ToString());
+            request.AddUrlSegment("id", action.ActionID.ToString());
 
             // Execute the request
             XDocument response = Execute(request);
@@ -75,6 +75,18 @@ namespace WPMGMT.BESScraper.API
                             response.Element("BESAPI").Element("ActionResults").Element("DateIssued").Value.ToString());
 
             return result;
+        }
+
+        public List<ActionDetail> GetActionDetails(List<WPMGMT.BESScraper.Model.Action> actions)
+        {
+            List<ActionDetail> details = new List<ActionDetail>();
+
+            foreach (WPMGMT.BESScraper.Model.Action action in actions)
+            {
+                details.Add(GetActionDetail(action));
+            }
+
+            return details;
         }
 
         public List<ActionResult> GetActionResults(int id)
