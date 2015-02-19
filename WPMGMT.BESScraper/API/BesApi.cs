@@ -128,9 +128,16 @@ namespace WPMGMT.BESScraper.API
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
-            RestRequest request = new RestRequest("analyses/{site}/{siteype}", Method.GET);
+            RestRequest request = new RestRequest("analyses/{sitetype}/{site}", Method.GET);
             request.AddUrlSegment("sitetype", site.Type);
             request.AddUrlSegment("site", site.Name);
+
+            // TODO: Handle master action site properly
+            if (site.Type == "master")
+            {
+                request = new RestRequest("analyses/{sitetype}", Method.GET);
+                request.AddUrlSegment("sitetype", site.Type);
+            }
 
             List<Analysis> analyses = Execute<List<Analysis>>(request);
 
@@ -165,18 +172,18 @@ namespace WPMGMT.BESScraper.API
             BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
             Site site = besDb.SelectSite(analysis.SiteID);
 
-            RestRequest request = new RestRequest("analysis/{site}/{siteype}/{analysisid}", Method.GET);
+            RestRequest request = new RestRequest("analysis/{sitetype}/{site}/{analysisid}", Method.GET);
             request.AddUrlSegment("sitetype", site.Type);
             request.AddUrlSegment("site", site.Name);
-            request.AddUrlSegment("analysisid", analysis.Name);
+            request.AddUrlSegment("analysisid", analysis.AnalysisID.ToString());
 
             XDocument response = Execute(request);
 
             List<AnalysisProperty> properties = new List<AnalysisProperty>();
 
-            foreach (XElement propertyElement in response.Element("BESAPI").Elements("Property"))
+            foreach (XElement propertyElement in response.Element("BES").Element("Analysis").Elements("Property"))
             {
-                properties.Add(new AnalysisProperty(analysis.ID, propertyElement.Attribute("Name").Value.ToString()));
+                properties.Add(new AnalysisProperty(analysis.AnalysisID, propertyElement.Attribute("Name").Value.ToString()));
             }
 
             return properties;

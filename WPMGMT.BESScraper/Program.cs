@@ -62,8 +62,11 @@ namespace WPMGMT.BESScraper
             //    details.Add(besApi.GetActionDetail(action.ActionID));
             //}
 
-            List<Analysis> analyses = besApi.GetAnalyses();
-            List<AnalysisProperty> properties = besApi.GetAnalysisProperties();
+            //List<Analysis> analyses = besApi.GetAnalyses();
+            //List<AnalysisProperty> properties = besApi.GetAnalysisProperties();
+
+            List<Computer> computers = besApi.GetComputers();
+            besDb.Insert
 
             Console.Read();
         }

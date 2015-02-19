@@ -49,6 +49,11 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
+        public Computer SelectComputer(string hostName)
+        {
+
+        }
+
         public Site SelectSite(int id)
         {
             IEnumerable<Site> sites = this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE ID = @Id", new { Id = id });

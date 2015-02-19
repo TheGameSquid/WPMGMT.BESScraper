@@ -1,5 +1,6 @@
 ﻿using System;
 using DapperExtensions.Mapper;
+using RestSharp.Deserializers;
 
 namespace WPMGMT.BESScraper.Model
 {
@@ -10,7 +11,9 @@ namespace WPMGMT.BESScraper.Model
             // Empty constructor for Dapper and RestSharp
         }
 
+        [DeserializeAs(Name = "IgnoreID")]
         public int ID           { get; set; }       // Identity ID assigned by DB
+        [DeserializeAs(Name = "ID")]
         public int AnalysisID   { get; set; }       // Identity ID assigned by API
         public int SiteID       { get; set; }
         public string Name      { get; set; }
