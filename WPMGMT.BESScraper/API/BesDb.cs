@@ -49,9 +49,14 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
-        public Computer SelectComputer(string hostName)
+        public Computer SelectComputer(string computerName)
         {
-
+            IEnumerable<Computer> computers = this.Connection.Query<Computer>("SELECT * FROM BESEXT.COMPUTER WHERE ComputerName = @ComputerName", new { ComputerName = computerName });
+            if (computers.Count() > 0)
+            {
+                return computers.Single();
+            }
+            return null;
         }
 
         public Site SelectSite(int id)
@@ -112,6 +117,24 @@ namespace WPMGMT.BESScraper.API
             foreach (ActionDetail detail in details)
             {
                 InsertActionDetail(detail);
+            }
+        }
+
+        public void InsertComputer(Computer computer)
+        {
+            if (SelectComputer(computer.ComputerName) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<Computer>(computer);
+                Connection.Close();
+            }
+        }
+
+        public void InsertComputers(List<Computer> computers)
+        {
+            foreach (Computer computer in computers)
+            {
+                InsertComputer(computer);
             }
         }
 

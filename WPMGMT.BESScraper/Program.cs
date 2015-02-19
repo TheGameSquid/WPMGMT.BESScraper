@@ -66,7 +66,9 @@ namespace WPMGMT.BESScraper
             //List<AnalysisProperty> properties = besApi.GetAnalysisProperties();
 
             List<Computer> computers = besApi.GetComputers();
-            besDb.Insert
+            besDb.InsertComputers(computers);
+
+            List<WPMGMT.BESScraper.Model.Action> action = besApi.GetActions();
 
             Console.Read();
         }

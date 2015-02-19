@@ -15,6 +15,7 @@ namespace WPMGMT.BESScraper.Model
         public int ID                       { get; set; }       // Identity ID assigned by DB
         [DeserializeAs(Name = "ID")]
         public int ComputerID               { get; set; }       // Identity ID assigned by API
+        public string ComputerName          { get; set; }
         public DateTime LastReportTime      { get; set; }
     }
 
@@ -29,7 +30,8 @@ namespace WPMGMT.BESScraper.Model
 
             // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
-            Map(f => f.ComputerID).Column("ComputerID").Key(KeyType.Assigned);
+            Map(f => f.ComputerID).Column("ComputerID");
+            Map(f => f.ComputerName).Column("ComputerName");
             Map(f => f.LastReportTime).Column("LastReportTime");
         }
     }

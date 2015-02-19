@@ -196,7 +196,20 @@ namespace WPMGMT.BESScraper.API
 
             RestRequest request = new RestRequest("computers", Method.GET);
 
-            return Execute<List<Computer>>(request);
+            List<Computer> computers = Execute<List<Computer>>(request);
+
+            foreach (Computer computer in computers)
+            {
+                request = new RestRequest("computer/{id}", Method.GET);
+                request.AddUrlSegment("id", computer.ComputerID.ToString());
+
+                XDocument response = Execute(request);
+                string hostName = response.Element("BESAPI").Element("Computer").Elements("Property")
+                    .Where(e => e.Attribute("Name").Value.ToString() == "Computer Name").Single().Value.ToString();
+                computer.ComputerName = hostName;
+            }
+
+            return computers;
         }
 
         public List<ComputerGroup> GetComputerGroups()
