@@ -6,6 +6,11 @@ namespace WPMGMT.BESScraper.Model
 {
     public class ActionDetail
     {
+        public ActionDetail()
+        {
+            // Empty constructor for Dapper and RestSharp
+        }
+
         public ActionDetail(int aActionID, string aStatus, string aDateIssued)
         {
             this.ActionID = aActionID;

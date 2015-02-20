@@ -89,30 +89,56 @@ namespace WPMGMT.BESScraper.API
             return details;
         }
 
-        public List<ActionResult> GetActionResults(int id)
+        public List<ActionResult> GetActionResults(WPMGMT.BESScraper.Model.Action action)
         {
             List<ActionResult> results = new List<ActionResult>();
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
             RestRequest request = new RestRequest("action/{id}/status", Method.GET);
-            request.AddUrlSegment("id", id.ToString());
+            request.AddUrlSegment("id", action.ActionID.ToString());
 
             // Execute the request
             XDocument response = Execute(request);
 
             foreach (XElement computerElement in response.Element("BESAPI").Element("ActionResults").Elements("Computer"))
             {
+                DateTime startTime = new DateTime();
+                DateTime endTime = new DateTime();
+
+                if (computerElement.Element("StartTime") != null)
+                {
+                    startTime = Convert.ToDateTime(computerElement.Element("StartTime").Value.ToString());
+                }
+                if (computerElement.Element("EndTime") != null)
+                {
+                    endTime = Convert.ToDateTime(computerElement.Element("EndTime").Value.ToString());
+                }
+
                 results.Add(new ActionResult(
-                                    id,                                                                         // Action ID
+                                    action.ActionID,                                                            // Action ID
                                     Int32.Parse(computerElement.Attribute("ID").Value.ToString()),              // Computer ID
                                     computerElement.Element("Status").Value.ToString(),                         // Status
                                     Int32.Parse(computerElement.Element("ApplyCount").Value.ToString()),        // Times applied
                                     Int32.Parse(computerElement.Element("RetryCount").Value.ToString()),        // Times retried
                                     Int32.Parse(computerElement.Element("LineNumber").Value.ToString()),        // Which script line is being executed
-                                    Convert.ToDateTime(computerElement.Element("StartTime").Value.ToString()),  // Time execution started
-                                    Convert.ToDateTime(computerElement.Element("EndTime").Value.ToString())     // Time execution ended
+                                    // Time execution started
+                                    (computerElement.Element("StartTime") != null) ? Convert.ToDateTime(computerElement.Element("StartTime").Value.ToString()) : (DateTime?)null,
+                                    // Time execution started
+                                    (computerElement.Element("EndTime") != null) ? Convert.ToDateTime(computerElement.Element("EndTime").Value.ToString()) : (DateTime?)null
                     ));
+            }
+
+            return results;
+        }
+
+        public List<ActionResult> GetActionResults(List<WPMGMT.BESScraper.Model.Action> actions)
+        {
+            List<ActionResult> results = new List<ActionResult>();
+
+            foreach (WPMGMT.BESScraper.Model.Action action in actions)
+            {
+                results.AddRange(GetActionResults(action));
             }
 
             return results;

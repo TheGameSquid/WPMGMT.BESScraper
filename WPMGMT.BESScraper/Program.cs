@@ -74,6 +74,10 @@ namespace WPMGMT.BESScraper
             List<ActionDetail> details = besApi.GetActionDetails(actions);
             besDb.InsertActionDetails(details);
 
+            List<ActionResult> results = besApi.GetActionResults(actions);
+            besDb.InsertActionResults(results);
+
+            Console.WriteLine("All done :)");
             Console.Read();
         }
     }

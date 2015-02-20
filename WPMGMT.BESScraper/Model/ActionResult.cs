@@ -5,7 +5,12 @@ namespace WPMGMT.BESScraper.Model
 {
     public class ActionResult
     {
-        public ActionResult(int aActionID, int aComputerID, string aStatus, int aState, int aApplyCount, int aRetryCount, DateTime aStartTime, DateTime aEndTime)
+        public ActionResult()
+        {
+            // Empty constructor for Dapper and RestSharp
+        }
+
+        public ActionResult(int aActionID, int aComputerID, string aStatus, int aState, int aApplyCount, int aRetryCount, DateTime? aStartTime, DateTime? aEndTime)
         {
             this.ActionID = aActionID;
             this.ComputerID = aComputerID;        
@@ -17,15 +22,15 @@ namespace WPMGMT.BESScraper.Model
             this.EndTime = aEndTime;
         }
 
-        public int ID               { get; set; }   // Identity ID assigned by DB
-        public int ActionID         { get; set; }
-        public int ComputerID       { get; set; }    
-        public string Status        { get; set; }
-        public int State            { get; set; }
-        public int ApplyCount       { get; set; }
-        public int RetryCount       { get; set; }
-        public DateTime StartTime   { get; set; }
-        public DateTime EndTime     { get; set; }
+        public int ID                   { get; set; }   // Identity ID assigned by DB
+        public int ActionID             { get; set; }
+        public int ComputerID           { get; set; }    
+        public string Status            { get; set; }
+        public int State                { get; set; }
+        public int ApplyCount           { get; set; }
+        public int RetryCount           { get; set; }
+        public DateTime? StartTime      { get; set; }
+        public DateTime? EndTime        { get; set; }
     }
 
     // DapperExtensions Mapper for ActionResult Class

@@ -19,9 +19,9 @@ namespace WPMGMT.BESScraper.API
         public SqlConnection Connection     { get; private set; }
         public string ConnectionString      { get; private set; }
 
-        public WPMGMT.BESScraper.Model.Action SelectAction(int id)
+        public WPMGMT.BESScraper.Model.Action SelectAction(int actionID)
         {
-            IEnumerable<WPMGMT.BESScraper.Model.Action> actions = this.Connection.Query<WPMGMT.BESScraper.Model.Action>("SELECT * FROM BESEXT.ACTION WHERE ID = @Id", new { Id = id });
+            IEnumerable<WPMGMT.BESScraper.Model.Action> actions = this.Connection.Query<WPMGMT.BESScraper.Model.Action>("SELECT * FROM BESEXT.ACTION WHERE ActionID = @ActionID", new { ActionID = actionID });
             if (actions.Count() > 0)
             {
                 return actions.Single();
@@ -29,22 +29,22 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
-        public WPMGMT.BESScraper.Model.Action SelectAction(string name)
+        public ActionDetail SelectActionDetail(int actionID)
         {
-            IEnumerable<WPMGMT.BESScraper.Model.Action> actions = this.Connection.Query<WPMGMT.BESScraper.Model.Action>("SELECT * FROM BESEXT.ACTION WHERE Name = @Name", new { Name = name });
-            if (actions.Count() > 0)
-            {
-                return actions.Single();
-            }
-            return null;
-        }
-
-        public ActionDetail SelectActionDetail(int id)
-        {
-            IEnumerable<ActionDetail> details = this.Connection.Query<ActionDetail>("SELECT * FROM BESEXT.ACTION_DETAIL WHERE ActionID = @Id", new { Id = id });
+            IEnumerable<ActionDetail> details = this.Connection.Query<ActionDetail>("SELECT * FROM BESEXT.ACTION_DETAIL WHERE ActionID = @ActionID", new { ActionID = actionID });
             if (details.Count() > 0)
             {
                 return details.Single();
+            }
+            return null;
+        }
+
+        public ActionResult SelectActionResult(int computerID, int actionID)
+        {
+            IEnumerable<ActionResult> results = this.Connection.Query<ActionResult>("SELECT * FROM BESEXT.ACTION_RESULT WHERE ActionID = @ActionID AND ComputerID = @ComputerID", new { ActionID = actionID, ComputerID = computerID });
+            if (results.Count() > 0)
+            {
+                return results.Single();
             }
             return null;
         }
@@ -86,7 +86,7 @@ namespace WPMGMT.BESScraper.API
 
         public void InsertAction(WPMGMT.BESScraper.Model.Action action)
         {
-            if (SelectAction(action.Name) == null)
+            if (SelectAction(action.ActionID) == null)
             {
                 Connection.Open();
                 int id = Connection.Insert<WPMGMT.BESScraper.Model.Action>(action);
@@ -117,6 +117,24 @@ namespace WPMGMT.BESScraper.API
             foreach (ActionDetail detail in details)
             {
                 InsertActionDetail(detail);
+            }
+        }
+
+        public void InsertActionResult(ActionResult result)
+        {
+            if (SelectActionResult(result.ComputerID, result.ActionID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<ActionResult>(result);
+                Connection.Close();
+            }
+        }
+
+        public void InsertActionResults(List<ActionResult> results)
+        {
+            foreach (ActionResult result in results)
+            {
+                InsertActionResult(result);
             }
         }
 
