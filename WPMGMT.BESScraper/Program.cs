@@ -65,17 +65,23 @@ namespace WPMGMT.BESScraper
             //List<Analysis> analyses = besApi.GetAnalyses();
             //List<AnalysisProperty> properties = besApi.GetAnalysisProperties();
 
-            List<Computer> computers = besApi.GetComputers();
-            besDb.InsertComputers(computers);
+            //List<Computer> computers = besApi.GetComputers();
+            //Computer computerLOL = computers.Where(e => e.ComputerID == 13690083).Single();
+            //besDb.InsertComputers(computers);
 
-            List<WPMGMT.BESScraper.Model.Action> actions = besApi.GetActions();
-            besDb.InsertActions(actions);
+            //List<WPMGMT.BESScraper.Model.Action> actions = besApi.GetActions();
+            //besDb.InsertActions(actions);
 
-            List<ActionDetail> details = besApi.GetActionDetails(actions);
-            besDb.InsertActionDetails(details);
+            //List<ActionDetail> details = besApi.GetActionDetails(actions);
+            //besDb.InsertActionDetails(details);
 
-            List<ActionResult> results = besApi.GetActionResults(actions);
-            besDb.InsertActionResults(results);
+            //List<ActionResult> results = besApi.GetActionResults(actions);
+            //besDb.InsertActionResults(results);
+
+            List<Site> sites = besApi.GetSites();
+            besDb.InsertSites(sites);
+
+            List<Analysis> analyses = besApi.GetAnalyses();
 
             Console.WriteLine("All done :)");
             Console.Read();

@@ -187,10 +187,9 @@ namespace WPMGMT.BESScraper.API
             return analyses;
         }
 
-        public List<AnalysisProperty> GetAnalysisProperties()
+        public List<AnalysisProperty> GetAnalysisProperties(List<Analysis> analyses)
         {
             List<AnalysisProperty> properties = new List<AnalysisProperty>();
-            List<Analysis> analyses = GetAnalyses();
 
             foreach (Analysis analysis in analyses)
             {

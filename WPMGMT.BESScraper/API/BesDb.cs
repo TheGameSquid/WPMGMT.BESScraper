@@ -49,6 +49,16 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
+        public Computer SelectComputer(int computerID)
+        {
+            IEnumerable<Computer> computers = this.Connection.Query<Computer>("SELECT * FROM BESEXT.COMPUTER WHERE ComputerID = @ComputerID", new { ComputerID = computerID });
+            if (computers.Count() > 0)
+            {
+                return computers.Single();
+            }
+            return null;
+        }
+
         public Computer SelectComputer(string computerName)
         {
             IEnumerable<Computer> computers = this.Connection.Query<Computer>("SELECT * FROM BESEXT.COMPUTER WHERE ComputerName = @ComputerName", new { ComputerName = computerName });
@@ -140,7 +150,7 @@ namespace WPMGMT.BESScraper.API
 
         public void InsertComputer(Computer computer)
         {
-            if (SelectComputer(computer.ComputerName) == null)
+            if (SelectComputer(computer.ComputerID) == null)
             {
                 Connection.Open();
                 int id = Connection.Insert<Computer>(computer);
