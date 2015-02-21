@@ -49,6 +49,26 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
+        public Analysis SelectAnalysis(int analysisID)
+        {
+            IEnumerable<Analysis> analyses = this.Connection.Query<Analysis>("SELECT * FROM BESEXT.ANALYSIS WHERE AnalysisID = @AnalysisID", new { AnalysisID = analysisID });
+            if (analyses.Count() > 0)
+            {
+                return analyses.Single();
+            }
+            return null;
+        }
+
+        public AnalysisProperty SelectAnalysisProperty(int analysisID, string propertyName)
+        {
+            IEnumerable<AnalysisProperty> properties = this.Connection.Query<AnalysisProperty>("SELECT * FROM BESEXT.ANALYSIS_PROPERTY WHERE AnalysisID = @AnalysisID AND Name = @Name", new { AnalysisID = analysisID, Name = propertyName });
+            if (properties.Count() > 0)
+            {
+                return properties.Single();
+            }
+            return null;
+        }
+
         public Computer SelectComputer(int computerID)
         {
             IEnumerable<Computer> computers = this.Connection.Query<Computer>("SELECT * FROM BESEXT.COMPUTER WHERE ComputerID = @ComputerID", new { ComputerID = computerID });
@@ -145,6 +165,42 @@ namespace WPMGMT.BESScraper.API
             foreach (ActionResult result in results)
             {
                 InsertActionResult(result);
+            }
+        }
+
+        public void InsertAnalysis(Analysis analysis)
+        {
+            if (SelectAnalysis(analysis.AnalysisID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<Analysis>(analysis);
+                Connection.Close();
+            }
+        }
+
+        public void InsertAnalyses(List<Analysis> analyses)
+        {
+            foreach (Analysis analysis in analyses)
+            {
+                InsertAnalysis(analysis);
+            }
+        }
+
+        public void InsertAnalysisProperty(AnalysisProperty property)
+        {
+            if (SelectAnalysisProperty(property.AnalysisID, property.Name) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<AnalysisProperty>(property);
+                Connection.Close();
+            }
+        }
+
+        public void InsertAnalysisProperties(List<AnalysisProperty> properties)
+        {
+            foreach (AnalysisProperty property in properties)
+            {
+                InsertAnalysisProperty(property);
             }
         }
 

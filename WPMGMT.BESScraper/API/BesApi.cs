@@ -220,7 +220,11 @@ namespace WPMGMT.BESScraper.API
 
             foreach (XElement propertyElement in response.Element("BES").Element("Analysis").Elements("Property"))
             {
-                properties.Add(new AnalysisProperty(analysis.AnalysisID, propertyElement.Attribute("Name").Value.ToString()));
+                properties.Add(new AnalysisProperty(
+                                            analysis.AnalysisID,
+                                            Convert.ToInt32(propertyElement.Attribute("ID").Value),
+                                            propertyElement.Attribute("Name").Value)
+                                        );
             }
 
             return properties;
@@ -316,11 +320,11 @@ namespace WPMGMT.BESScraper.API
             return group;
         }
 
-        public List<ComputerGroupMember> GetGroupMembers()
+        public List<ComputerGroupMember> GetGroupMembers(List<ComputerGroup> groups)
         {
             List<ComputerGroupMember> members = new List<ComputerGroupMember>();
 
-            foreach (ComputerGroup group in GetComputerGroups())
+            foreach (ComputerGroup group in groups)
             {
                 members.AddRange(GetGroupMembers(group));
             }

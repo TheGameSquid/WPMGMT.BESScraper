@@ -78,10 +78,18 @@ namespace WPMGMT.BESScraper
             //List<ActionResult> results = besApi.GetActionResults(actions);
             //besDb.InsertActionResults(results);
 
-            List<Site> sites = besApi.GetSites();
-            besDb.InsertSites(sites);
+            //List<Site> sites = besApi.GetSites();
+            //besDb.InsertSites(sites);
 
             List<Analysis> analyses = besApi.GetAnalyses();
+            besDb.InsertAnalyses(analyses);
+
+            List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
+            besDb.InsertAnalysisProperties(properties);
+
+            List<ComputerGroup> groups = besApi.GetComputerGroups();
+
+            List<ComputerGroupMember> groupmembers = besApi.GetGroupMembers(groups);
 
             Console.WriteLine("All done :)");
             Console.Read();
