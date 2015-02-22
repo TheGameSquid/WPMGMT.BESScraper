@@ -84,12 +84,22 @@ namespace WPMGMT.BESScraper
             List<Analysis> analyses = besApi.GetAnalyses();
             besDb.InsertAnalyses(analyses);
 
-            List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
-            besDb.InsertAnalysisProperties(properties);
+            List<Computer> computers = besApi.GetComputers();
+            besDb.InsertComputers(computers);
 
-            List<ComputerGroup> groups = besApi.GetComputerGroups();
+            //List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
+            //besDb.InsertAnalysisProperties(properties);
 
-            List<ComputerGroupMember> groupmembers = besApi.GetGroupMembers(groups);
+            //List<ComputerGroup> groups = besApi.GetComputerGroups();
+
+            //List<ComputerGroupMember> groupmembers = besApi.GetGroupMembers(groups);
+
+            RestClient client = new RestClient(@"https://DEIMV201.BelgianRail.be:52311/api/");
+            client.Authenticator = new HttpBasicAuthenticator("iemadmin", "bigfix");
+            RestRequest request = new RestRequest("query", Method.GET);
+            request.AddQueryParameter("relevance", "(values of it) of results from (BES computers whose (name of it = \"PO121200002\")) of BES Properties whose (name of source analysis of it = \"[IDA/ITRIS] Master Version\")");
+
+            IRestResponse response = client.Execute(request);
 
             Console.WriteLine("All done :)");
             Console.Read();

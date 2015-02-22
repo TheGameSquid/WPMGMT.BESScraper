@@ -49,9 +49,9 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
-        public Analysis SelectAnalysis(int analysisID)
+        public Analysis SelectAnalysis(int siteID, int analysisID)
         {
-            IEnumerable<Analysis> analyses = this.Connection.Query<Analysis>("SELECT * FROM BESEXT.ANALYSIS WHERE AnalysisID = @AnalysisID", new { AnalysisID = analysisID });
+            IEnumerable<Analysis> analyses = this.Connection.Query<Analysis>("SELECT * FROM BESEXT.ANALYSIS WHERE SiteID = @SiteID AND AnalysisID = @AnalysisID", new { SiteID = siteID, AnalysisID = analysisID });
             if (analyses.Count() > 0)
             {
                 return analyses.Single();
@@ -170,7 +170,7 @@ namespace WPMGMT.BESScraper.API
 
         public void InsertAnalysis(Analysis analysis)
         {
-            if (SelectAnalysis(analysis.AnalysisID) == null)
+            if (SelectAnalysis(analysis.SiteID, analysis.AnalysisID) == null)
             {
                 Connection.Open();
                 int id = Connection.Insert<Analysis>(analysis);
