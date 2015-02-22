@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
+using System.Diagnostics;
 using System.Linq;
 using System.Net;
 
@@ -88,14 +89,21 @@ namespace WPMGMT.BESScraper
 
             //List<ComputerGroupMember> groupmembers = besApi.GetGroupMembers(groups);
 
-            List<Computer> computers = besApi.GetComputers();
-            List<Analysis> analyses = besApi.GetAnalyses();
-            //List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties, computers);
+            //List<Computer> computers = besApi.GetComputers();
+            //List<Analysis> analyses = besApi.GetAnalyses();
+            //List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
+            //List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties);
 
-            AnalysisProperty property = besDb.SelectAnalysisProperty(961, "SequenceVersion");
-            List<AnalysisProperty> properties = new List<AnalysisProperty>();
-            properties.Add(property);
-            List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties, computers);
+            List<AnalysisProperty> properties = besDb.SelectAnalysisProperties();
+            Stopwatch timer = new Stopwatch();
+
+            timer.Start();
+            List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties);
+            timer.Stop();
+
+            Console.WriteLine("Time elapsed: {0}", timer.Elapsed);
+
+            besDb.InsertAnalysisPropertyResults(results);
 
             Console.WriteLine("All done :)");
             Console.Read();

@@ -80,6 +80,21 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
+        public List<AnalysisProperty> SelectAnalysisProperties()
+        {
+            return (List<AnalysisProperty>)this.Connection.Query<AnalysisProperty>("SELECT * FROM BESEXT.ANALYSIS_PROPERTY");
+        }
+
+        public AnalysisPropertyResult SelectAnalysisPropertyResult(int propertyID, int computerID)
+        {
+            IEnumerable<AnalysisPropertyResult> results = this.Connection.Query<AnalysisPropertyResult>("SELECT * FROM BESEXT.ANALYSIS_PROPERTY_RESULT WHERE PropertyID = @PropertyID AND ComputerID = @ComputerID", new { PropertyID = propertyID, ComputerID = computerID });
+            if (results.Count() > 0)
+            {
+                return results.Single();
+            }
+            return null;
+        }
+
         public Computer SelectComputer(int computerID)
         {
             IEnumerable<Computer> computers = this.Connection.Query<Computer>("SELECT * FROM BESEXT.COMPUTER WHERE ComputerID = @ComputerID", new { ComputerID = computerID });
@@ -212,6 +227,33 @@ namespace WPMGMT.BESScraper.API
             foreach (AnalysisProperty property in properties)
             {
                 InsertAnalysisProperty(property);
+            }
+        }
+
+        public void InsertAnalysisPropertyResult(AnalysisPropertyResult result)
+        {
+            if (SelectAnalysisPropertyResult(result.PropertyID, result.ComputerID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<AnalysisPropertyResult>(result);
+                Connection.Close();
+            }
+            else
+            {
+                // First, get the existing object
+                AnalysisPropertyResult dbResult = SelectAnalysisPropertyResult(result.PropertyID, result.ComputerID);
+                // Update the new value
+                dbResult.Value = result.Value;
+                // Now let's put it back into the DB
+                Connection.Update<AnalysisPropertyResult>(dbResult);
+            }
+        }
+
+        public void InsertAnalysisPropertyResults(List<AnalysisPropertyResult> results)
+        {
+            foreach (AnalysisPropertyResult result in results)
+            {
+                InsertAnalysisPropertyResult(result);
             }
         }
 

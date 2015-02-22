@@ -233,7 +233,7 @@ namespace WPMGMT.BESScraper.API
             return properties;
         }
 
-        public List<AnalysisPropertyResult> GetAnalysisPropertyResults(List<AnalysisProperty> properties, List<Computer> computers)
+        public List<AnalysisPropertyResult> GetAnalysisPropertyResults(List<AnalysisProperty> properties)
         {
             List<AnalysisPropertyResult> results = new List<AnalysisPropertyResult>();
 
@@ -242,26 +242,27 @@ namespace WPMGMT.BESScraper.API
 
             foreach (AnalysisProperty property in properties)
             {
-                foreach (Computer computer in computers)
-                {
-                    results.Add(GetAnalysisPropertyResult(property, computer));
-                }
+                results.AddRange(GetAnalysisPropertyResult(property));
             }
 
             return results;
         }
 
-        public AnalysisPropertyResult GetAnalysisPropertyResult(AnalysisProperty property, Computer computer)
+        // Returns results for all computers for said property
+        public List<AnalysisPropertyResult> GetAnalysisPropertyResult(AnalysisProperty property)
         {
+            Console.WriteLine("{0}: Property: {1}", property.ID, property.Name);
+
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
+            List<AnalysisPropertyResult> results = new List<AnalysisPropertyResult>();
+
             // We need to use Session Relevance to acquire property results
             // We'll use the following Relevance query:
-            // {0}: The Computer ID for which we want the result
-            // {1}: The SequenceNo/Source ID of the Analysis property
-            // {2}: The Name of the Analysis
-            string relevance = "(values of it) of results from (BES computers whose (id of it = {0})) of BES Properties whose ((source id of it = {1}) and (name of source analysis of it = \"{2}\"))";
+            // {0}: The SequenceNo/Source ID of the Analysis property
+            // {1}: The Name of the Analysis
+            string relevance = "((id of it) of computer of it, values of it) of results from (BES Computers) of BES Properties whose ((source id of it = {0}) and (name of source analysis of it = \"{1}\"))";
 
             // Unfortunately, we'll also need the name of the Parent Analysis. For that, we'll need to query the DB
             BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
@@ -269,18 +270,27 @@ namespace WPMGMT.BESScraper.API
 
             // Let's compose the request string
             RestRequest request = new RestRequest("query", Method.GET);
-            request.AddQueryParameter("relevance", String.Format(relevance, computer.ComputerID.ToString(), property.SequenceNo.ToString(), analysis.Name));
+            //request.AddQueryParameter("relevance", String.Format(relevance, computer.ComputerID.ToString(), property.SequenceNo.ToString(), analysis.Name));
+            request.AddQueryParameter("relevance", String.Format(relevance, property.SequenceNo.ToString(), analysis.Name));
 
             XDocument response = Execute(request);
 
             // Let's check if the Result element is empty
             if (response.Element("BESAPI").Element("Query").Element("Result").Elements().Count() > 0)
             {
-                XElement result = response.Element("BESAPI").Element("Query").Element("Result").Element("Answer");
-                return new AnalysisPropertyResult(property.ID, computer.ComputerID, result.Value.ToString());
+                // All answers are wrapped inside a "Tuple" element
+                foreach (XElement tupleElement in response.Element("BESAPI").Element("Query").Element("Result").Elements("Tuple"))
+                {
+                    // The Result consists of two parts:
+                    //  1) The ComputerID
+                    //  2) The value of the retrieved property sequence for said ComputerID
+                    XElement computerElement = tupleElement.Elements("Answer").First();
+                    XElement valueElement = tupleElement.Elements("Answer").Last();
+                    results.Add(new AnalysisPropertyResult(property.ID, Convert.ToInt32(computerElement.Value.ToString()), valueElement.Value.ToString()));
+                }
             }
 
-            return null;
+            return results;
         }
 
         public List<Computer> GetComputers()
