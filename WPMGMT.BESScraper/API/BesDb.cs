@@ -49,6 +49,17 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
+        public Analysis SelectAnalysis(int id)
+        {
+            // BEWARE: This method uses the DB ID, not the API ID!
+            IEnumerable<Analysis> analyses = this.Connection.Query<Analysis>("SELECT * FROM BESEXT.ANALYSIS WHERE ID = @ID", new { ID = id });
+            if (analyses.Count() > 0)
+            {
+                return analyses.Single();
+            }
+            return null;
+        }
+
         public Analysis SelectAnalysis(int siteID, int analysisID)
         {
             IEnumerable<Analysis> analyses = this.Connection.Query<Analysis>("SELECT * FROM BESEXT.ANALYSIS WHERE SiteID = @SiteID AND AnalysisID = @AnalysisID", new { SiteID = siteID, AnalysisID = analysisID });

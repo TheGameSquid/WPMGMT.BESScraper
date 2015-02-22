@@ -209,6 +209,9 @@ namespace WPMGMT.BESScraper.API
             BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
             Site site = besDb.SelectSite(analysis.SiteID);
 
+            // Likewise, we need the DB ID of the Analysis, because we API IDs are NOT unique
+            analysis = besDb.SelectAnalysis(analysis.SiteID, analysis.AnalysisID);
+
             RestRequest request = new RestRequest("analysis/{sitetype}/{site}/{analysisid}", Method.GET);
             request.AddUrlSegment("sitetype", site.Type);
             request.AddUrlSegment("site", site.Name);
@@ -221,13 +224,63 @@ namespace WPMGMT.BESScraper.API
             foreach (XElement propertyElement in response.Element("BES").Element("Analysis").Elements("Property"))
             {
                 properties.Add(new AnalysisProperty(
-                                            analysis.AnalysisID,
+                                            analysis.ID,
                                             Convert.ToInt32(propertyElement.Attribute("ID").Value),
                                             propertyElement.Attribute("Name").Value)
                                         );
             }
 
             return properties;
+        }
+
+        public List<AnalysisPropertyResult> GetAnalysisPropertyResults(List<AnalysisProperty> properties, List<Computer> computers)
+        {
+            List<AnalysisPropertyResult> results = new List<AnalysisPropertyResult>();
+
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            foreach (AnalysisProperty property in properties)
+            {
+                foreach (Computer computer in computers)
+                {
+                    results.Add(GetAnalysisPropertyResult(property, computer));
+                }
+            }
+
+            return results;
+        }
+
+        public AnalysisPropertyResult GetAnalysisPropertyResult(AnalysisProperty property, Computer computer)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            // We need to use Session Relevance to acquire property results
+            // We'll use the following Relevance query:
+            // {0}: The Computer ID for which we want the result
+            // {1}: The SequenceNo/Source ID of the Analysis property
+            // {2}: The Name of the Analysis
+            string relevance = "(values of it) of results from (BES computers whose (id of it = {0})) of BES Properties whose ((source id of it = {1}) and (name of source analysis of it = \"{2}\"))";
+
+            // Unfortunately, we'll also need the name of the Parent Analysis. For that, we'll need to query the DB
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            Analysis analysis = besDb.SelectAnalysis(property.AnalysisID);
+
+            // Let's compose the request string
+            RestRequest request = new RestRequest("query", Method.GET);
+            request.AddQueryParameter("relevance", String.Format(relevance, computer.ComputerID.ToString(), property.SequenceNo.ToString(), analysis.Name));
+
+            XDocument response = Execute(request);
+
+            // Let's check if the Result element is empty
+            if (response.Element("BESAPI").Element("Query").Element("Result").Elements().Count() > 0)
+            {
+                XElement result = response.Element("BESAPI").Element("Query").Element("Result").Element("Answer");
+                return new AnalysisPropertyResult(property.ID, computer.ComputerID, result.Value.ToString());
+            }
+
+            return null;
         }
 
         public List<Computer> GetComputers()

@@ -81,12 +81,6 @@ namespace WPMGMT.BESScraper
             //List<Site> sites = besApi.GetSites();
             //besDb.InsertSites(sites);
 
-            List<Analysis> analyses = besApi.GetAnalyses();
-            besDb.InsertAnalyses(analyses);
-
-            List<Computer> computers = besApi.GetComputers();
-            besDb.InsertComputers(computers);
-
             //List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
             //besDb.InsertAnalysisProperties(properties);
 
@@ -94,12 +88,14 @@ namespace WPMGMT.BESScraper
 
             //List<ComputerGroupMember> groupmembers = besApi.GetGroupMembers(groups);
 
-            RestClient client = new RestClient(@"https://DEIMV201.BelgianRail.be:52311/api/");
-            client.Authenticator = new HttpBasicAuthenticator("iemadmin", "bigfix");
-            RestRequest request = new RestRequest("query", Method.GET);
-            request.AddQueryParameter("relevance", "(values of it) of results from (BES computers whose (name of it = \"PO121200002\")) of BES Properties whose (name of source analysis of it = \"[IDA/ITRIS] Master Version\")");
+            List<Computer> computers = besApi.GetComputers();
+            List<Analysis> analyses = besApi.GetAnalyses();
+            //List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties, computers);
 
-            IRestResponse response = client.Execute(request);
+            AnalysisProperty property = besDb.SelectAnalysisProperty(961, "SequenceVersion");
+            List<AnalysisProperty> properties = new List<AnalysisProperty>();
+            properties.Add(property);
+            List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties, computers);
 
             Console.WriteLine("All done :)");
             Console.Read();
