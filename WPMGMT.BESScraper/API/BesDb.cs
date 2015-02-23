@@ -213,6 +213,8 @@ namespace WPMGMT.BESScraper.API
 
         public void InsertActionResults(List<ActionResult> results)
         {
+            // TODO: Replace update logic
+            this.Connection.Execute("TRUNCATE TABLE BESEXT.ACTION_RESULT");
             foreach (ActionResult result in results)
             {
                 InsertActionResult(result);
@@ -276,6 +278,8 @@ namespace WPMGMT.BESScraper.API
 
         public void InsertAnalysisPropertyResults(List<AnalysisPropertyResult> results)
         {
+            // TODO: Replace update logic
+            this.Connection.Execute("TRUNCATE TABLE BESEXT.ANALYSIS_PROPERTY_RESULT");
             foreach (AnalysisPropertyResult result in results)
             {
                 InsertAnalysisPropertyResult(result);
@@ -312,16 +316,8 @@ namespace WPMGMT.BESScraper.API
 
         public void InsertBaselineResults(List<BaselineResult> results)
         {
-            // First: let's make a clear distinction between what's in the DB right now, and what we just restrieved from the API
-            List<BaselineResult> dbResults = this.SelectBaselineResults();
-            List<BaselineResult> apiResults = results;
-
-            // Now let's do a diff on list we're inserting, and the list in the DB
-            List<BaselineResult> notInDB = apiResults.Except((IEnumerable<BaselineResult>)dbResults).ToList<BaselineResult>();
-            List<BaselineResult> notInAPI = dbResults.Except((IEnumerable<BaselineResult>)apiResults).ToList<BaselineResult>();
-
-            IEnumerable<BaselineResult> resultPOEP = (IEnumerable<BaselineResult>)dbResults;
-            var resultssssss = notInAPI.Where(api => !notInDB.Any(db => api.BaselineID == db.BaselineID));
+            // TODO: Replace update logic
+            this.Connection.Execute("TRUNCATE TABLE BESEXT.BASELINE_RESULT");
 
             foreach (BaselineResult result in results)
             {

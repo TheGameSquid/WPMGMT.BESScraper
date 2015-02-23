@@ -114,23 +114,6 @@ namespace WPMGMT.BESScraper
             List<BaselineResult> results = besApi.GetBaselineResults(baselines);
             besDb.InsertBaselineResults(results);
 
-            BaselineResult result1 = new BaselineResult(1, 1);
-            BaselineResult result2 = new BaselineResult(1, 1);
-            BaselineResult result3 = new BaselineResult(2, 2);
-
-            List<BaselineResult> list1 = new List<BaselineResult>();
-            list1.Add(result1);
-
-            List<BaselineResult> list2 = new List<BaselineResult>();
-            list2.Add(result1);
-            list2.Add(result1);
-
-            //Console.WriteLine("Resul1 and Result2: {0}", result1.Equals(result2));
-            //Console.WriteLine("Resul1 and Result3: {0}", result1.Equals(result3));
-
-            var resultssssss = list1.Where(api => !list2.Any(db => api.BaselineID == db.BaselineID));
-            list1.Intersect(list2);
-
             Console.WriteLine("All done :)");
             Console.Read();
         }
