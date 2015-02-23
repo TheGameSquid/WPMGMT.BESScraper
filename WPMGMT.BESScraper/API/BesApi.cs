@@ -342,6 +342,57 @@ namespace WPMGMT.BESScraper.API
             return baselines;
         }
 
+        public List<BaselineResult> GetBaselineResults(List<Baseline> baselines)
+        {
+            List<BaselineResult> results = new List<BaselineResult>();
+
+            foreach (Baseline baseline in baselines)
+            {
+                results.AddRange(GetBaselineResults(baseline));
+            }
+
+            return results;
+        }
+
+        public List<BaselineResult> GetBaselineResults(Baseline baseline)
+        {
+            List<BaselineResult> results = new List<BaselineResult>();
+            
+            // We need to acquire some info concerning the site
+            // Let's fetch the site object now
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            Site dbSite = besDb.SelectSite(baseline.SiteID);
+
+            // The list of baselines is contained within the site content
+            RestRequest request = new RestRequest("fixlet/{sitetype}/{site}/{baselineid}/computers", Method.GET);
+            request.AddUrlSegment("sitetype", dbSite.Type);
+            request.AddUrlSegment("site", dbSite.Name);
+            request.AddUrlSegment("baselineid", baseline.BaselineID.ToString());
+
+            // TODO: Handle master action site properly
+            if (dbSite.Type == "master")
+            {
+                request = new RestRequest("fixlet/{sitetype}/{site}/{baselineid}/computers", Method.GET);
+                request.AddUrlSegment("sitetype", dbSite.Type);
+                request.AddUrlSegment("baselineid", baseline.BaselineID.ToString());
+            }
+
+            XDocument response = Execute(request);
+
+            // The returned document should contain 0 or more Computer resource URIs
+            if (response.Element("BESAPI").Elements().Count(e => e.Name == "Computer") > 0)
+            {
+                foreach (XElement computerElement in response.Element("BESAPI").Elements("Computer"))
+                {
+                    // We only need the last part of the resource URI -- the ID
+                    Uri resourceUri = new Uri(computerElement.Attribute("Resource").Value.ToString());
+                    results.Add(new BaselineResult(baseline.BaselineID, Int32.Parse(resourceUri.Segments.Last())));
+                }
+            }
+
+            return results;
+        }
+
         public List<Computer> GetComputers()
         {
             RestClient client = new RestClient(this.BaseURL);

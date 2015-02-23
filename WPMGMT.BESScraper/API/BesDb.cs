@@ -97,12 +97,27 @@ namespace WPMGMT.BESScraper.API
 
         public Baseline SelectBaseline(int baselineID, int siteID)
         {
-            IEnumerable<Baseline> results = this.Connection.Query<Baseline>("SELECT * FROM BESEXT.BASELINE WHERE BaselineID = @BaselineID AND SiteID = @SiteID", new { BaselineID = baselineID, SiteID = siteID });
+            IEnumerable<Baseline> baselines = this.Connection.Query<Baseline>("SELECT * FROM BESEXT.BASELINE WHERE BaselineID = @BaselineID AND SiteID = @SiteID", new { BaselineID = baselineID, SiteID = siteID });
+            if (baselines.Count() > 0)
+            {
+                return baselines.Single();
+            }
+            return null;
+        }
+
+        public BaselineResult SelectBaselineResult(int baselineID, int computerID)
+        {
+            IEnumerable<BaselineResult> results = this.Connection.Query<BaselineResult>("SELECT * FROM BESEXT.BASELINE_RESULT WHERE BaselineID = @BaselineID AND ComputerID = @ComputerID", new { BaselineID = baselineID, ComputerID = computerID });
             if (results.Count() > 0)
             {
                 return results.Single();
             }
             return null;
+        }
+
+        public List<BaselineResult> SelectBaselineResults()
+        {
+            return (List<BaselineResult>)this.Connection.Query<BaselineResult>("SELECT * FROM BESEXT.BASELINE_RESULT");
         }
 
         public Computer SelectComputer(int computerID)
@@ -282,6 +297,35 @@ namespace WPMGMT.BESScraper.API
             foreach (Baseline baseline in baselines)
             {
                 InsertBaseline(baseline);
+            }
+        }
+
+        public void InsertBaselineResult(BaselineResult result)
+        {
+            if (SelectBaselineResult(result.BaselineID, result.ComputerID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<BaselineResult>(result);
+                Connection.Close();
+            }
+        }
+
+        public void InsertBaselineResults(List<BaselineResult> results)
+        {
+            // First: let's make a clear distinction between what's in the DB right now, and what we just restrieved from the API
+            List<BaselineResult> dbResults = this.SelectBaselineResults();
+            List<BaselineResult> apiResults = results;
+
+            // Now let's do a diff on list we're inserting, and the list in the DB
+            List<BaselineResult> notInDB = apiResults.Except((IEnumerable<BaselineResult>)dbResults).ToList<BaselineResult>();
+            List<BaselineResult> notInAPI = dbResults.Except((IEnumerable<BaselineResult>)apiResults).ToList<BaselineResult>();
+
+            IEnumerable<BaselineResult> resultPOEP = (IEnumerable<BaselineResult>)dbResults;
+            var resultssssss = notInAPI.Where(api => !notInDB.Any(db => api.BaselineID == db.BaselineID));
+
+            foreach (BaselineResult result in results)
+            {
+                InsertBaselineResult(result);
             }
         }
 
