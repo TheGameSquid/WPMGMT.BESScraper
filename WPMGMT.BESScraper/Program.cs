@@ -89,12 +89,14 @@ namespace WPMGMT.BESScraper
 
             //List<ComputerGroupMember> groupmembers = besApi.GetGroupMembers(groups);
 
-            //List<Computer> computers = besApi.GetComputers();
-            //List<Analysis> analyses = besApi.GetAnalyses();
-            //List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
-            //List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties);
-
-            List<AnalysisProperty> properties = besDb.SelectAnalysisProperties();
+            List<Computer> computers = besApi.GetComputers();
+            besDb.InsertComputers(computers);
+            List<Analysis> analyses = besApi.GetAnalyses();
+            besDb.InsertAnalyses(analyses);
+            List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
+            besDb.InsertAnalysisProperties(properties);
+            properties = besDb.SelectAnalysisProperties();
+            
             Stopwatch timer = new Stopwatch();
 
             timer.Start();
