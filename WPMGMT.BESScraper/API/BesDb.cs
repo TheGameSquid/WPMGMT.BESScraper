@@ -95,6 +95,16 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
+        public Baseline SelectBaseline(int baselineID, int siteID)
+        {
+            IEnumerable<Baseline> results = this.Connection.Query<Baseline>("SELECT * FROM BESEXT.BASELINE WHERE BaselineID = @BaselineID AND SiteID = @SiteID", new { BaselineID = baselineID, SiteID = siteID });
+            if (results.Count() > 0)
+            {
+                return results.Single();
+            }
+            return null;
+        }
+
         public Computer SelectComputer(int computerID)
         {
             IEnumerable<Computer> computers = this.Connection.Query<Computer>("SELECT * FROM BESEXT.COMPUTER WHERE ComputerID = @ComputerID", new { ComputerID = computerID });
@@ -254,6 +264,24 @@ namespace WPMGMT.BESScraper.API
             foreach (AnalysisPropertyResult result in results)
             {
                 InsertAnalysisPropertyResult(result);
+            }
+        }
+
+        public void InsertBaseline(Baseline baseline)
+        {
+            if (SelectBaseline(baseline.BaselineID, baseline.SiteID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<Baseline>(baseline);
+                Connection.Close();
+            }
+        }
+
+        public void InsertBaselines(List<Baseline> baselines)
+        {
+            foreach (Baseline baseline in baselines)
+            {
+                InsertBaseline(baseline);
             }
         }
 

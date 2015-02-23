@@ -68,6 +68,7 @@
     <Compile Include="Model\Analysis.cs" />
     <Compile Include="Model\AnalysisProperty.cs" />
     <Compile Include="Model\AnalysisPropertyResult.cs" />
+    <Compile Include="Model\Baseline.cs" />
     <Compile Include="Model\Computer.cs" />
     <Compile Include="Model\ComputerGroup.cs" />
     <Compile Include="Model\ComputerGroupMember.cs" />

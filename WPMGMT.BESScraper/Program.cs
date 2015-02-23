@@ -89,23 +89,27 @@ namespace WPMGMT.BESScraper
 
             //List<ComputerGroupMember> groupmembers = besApi.GetGroupMembers(groups);
 
-            List<Computer> computers = besApi.GetComputers();
-            besDb.InsertComputers(computers);
-            List<Analysis> analyses = besApi.GetAnalyses();
-            besDb.InsertAnalyses(analyses);
-            List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
-            besDb.InsertAnalysisProperties(properties);
-            properties = besDb.SelectAnalysisProperties();
+            //List<Computer> computers = besApi.GetComputers();
+            //besDb.InsertComputers(computers);
+            //List<Analysis> analyses = besApi.GetAnalyses();
+            //besDb.InsertAnalyses(analyses);
+            //List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
+            //besDb.InsertAnalysisProperties(properties);
+            //properties = besDb.SelectAnalysisProperties();
             
-            Stopwatch timer = new Stopwatch();
+            //Stopwatch timer = new Stopwatch();
 
-            timer.Start();
-            List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties);
-            timer.Stop();
+            //timer.Start();
+            //List<AnalysisPropertyResult> results = besApi.GetAnalysisPropertyResults(properties);
+            //timer.Stop();
 
-            Console.WriteLine("Time elapsed: {0}", timer.Elapsed);
+            //Console.WriteLine("Time elapsed: {0}", timer.Elapsed);
 
-            besDb.InsertAnalysisPropertyResults(results);
+            //besDb.InsertAnalysisPropertyResults(results);
+
+            List<Site> sites = besDb.SelectSites();
+            List<Baseline> baselines = besApi.GetBaselines(sites);
+            besDb.InsertBaselines(baselines);
 
             Console.WriteLine("All done :)");
             Console.Read();

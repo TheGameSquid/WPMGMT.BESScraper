@@ -293,6 +293,55 @@ namespace WPMGMT.BESScraper.API
             return results;
         }
 
+        public List<Baseline> GetBaselines(List<Site> sites)
+        {
+            List<Baseline> baselines = new List<Baseline>();
+
+            // Loop through the complete list of sites provided
+            foreach (Site site in sites)
+            {
+                baselines.AddRange(GetBaselines(site));
+            }
+
+            return baselines;
+        }
+
+        public List<Baseline> GetBaselines(Site site)
+        {
+            List<Baseline> baselines = new List<Baseline>();
+
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+            
+            // The list of baselines is contained within the site content
+            RestRequest request = new RestRequest("site/{sitetype}/{site}/content", Method.GET);
+            request.AddUrlSegment("sitetype", site.Type);
+            request.AddUrlSegment("site", site.Name);
+
+            // TODO: Handle master action site properly
+            if (site.Type == "master")
+            {
+                request = new RestRequest("site/{sitetype}/content", Method.GET);
+                request.AddUrlSegment("sitetype", site.Type);
+            }
+
+            XDocument response = Execute(request);
+
+            if (response.Element("BESAPI").Elements("Baseline") != null)
+            {
+                foreach (XElement baselineElement in response.Element("BESAPI").Elements("Baseline"))
+                {
+                    baselines.Add(new Baseline(
+                                    Convert.ToInt32(baselineElement.Element("ID").Value),
+                                    site.ID,
+                                    baselineElement.Element("Name").Value
+                                ));
+                }
+            }
+
+            return baselines;
+        }
+
         public List<Computer> GetComputers()
         {
             RestClient client = new RestClient(this.BaseURL);
