@@ -140,6 +140,26 @@ namespace WPMGMT.BESScraper.API
             return null;
         }
 
+        public ComputerGroup SelectComputerGroup(int groupID, int siteID)
+        {
+            IEnumerable<ComputerGroup> groups = this.Connection.Query<ComputerGroup>("SELECT * FROM BESEXT.\"GROUP\" WHERE GroupID = @GroupID AND @SiteID = SiteID", new { GroupID = groupID, SiteID = siteID });
+            if (groups.Count() > 0)
+            {
+                return groups.Single();
+            }
+            return null;
+        }
+
+        public ComputerGroupMember SelectComputerGroupMember(int groupID, int computerID)
+        {
+            IEnumerable<ComputerGroupMember> members = this.Connection.Query<ComputerGroupMember>("SELECT * FROM BESEXT.GROUP_MEMBER WHERE GroupID = @GroupID AND @ComputerID = ComputerID", new { GroupID = groupID, ComputerID = computerID });
+            if (members.Count() > 0)
+            {
+                return members.Single();
+            }
+            return null;
+        }
+
         public Site SelectSite(int id)
         {
             IEnumerable<Site> sites = this.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE ID = @Id", new { Id = id });
@@ -340,6 +360,45 @@ namespace WPMGMT.BESScraper.API
             foreach (Computer computer in computers)
             {
                 InsertComputer(computer);
+            }
+        }
+
+        public void InsertComputerGroup(ComputerGroup group)
+        {
+            if (SelectComputerGroup(group.GroupID, group.SiteID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<ComputerGroup>(group);
+                Connection.Close();
+            }
+        }
+
+        public void InsertComputerGroups(List<ComputerGroup> groups)
+        {
+            foreach (ComputerGroup group in groups)
+            {
+                InsertComputerGroup(group);
+            }
+        }
+
+        public void InsertComputerGroupMember(ComputerGroupMember member)
+        {
+            if (SelectComputerGroupMember(member.GroupID, member.ComputerID) == null)
+            {
+                Connection.Open();
+                int id = Connection.Insert<ComputerGroupMember>(member);
+                Connection.Close();
+            }
+        }
+
+        public void InsertComputerGroupMembers(List<ComputerGroupMember> members)
+        {
+            // TODO: Replace update logic
+            this.Connection.Execute("TRUNCATE TABLE BESEXT.GROUP_MEMBER");
+
+            foreach (ComputerGroupMember member in members)
+            {
+                InsertComputerGroupMember(member);
             }
         }
 

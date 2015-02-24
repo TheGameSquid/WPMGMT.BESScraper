@@ -5,6 +5,11 @@ namespace WPMGMT.BESScraper.Model
 {
     public class ComputerGroupMember
     {
+        public ComputerGroupMember()
+        {
+            // Empty constructor for Dapper and RestSharp
+        }
+
         public ComputerGroupMember(int GroupID, int ComputerID)
         {
             this.GroupID = GroupID;

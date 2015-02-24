@@ -8,7 +8,7 @@ namespace WPMGMT.BESScraper.Model
     {
         public ComputerGroup()
         {
-            // Empty constructor used by RestSharp
+            // Empty constructor for Dapper and RestSharp
         }
 
         public int ID           { get; set; }   // Identity ID assigned by DB
@@ -30,8 +30,8 @@ namespace WPMGMT.BESScraper.Model
 
             // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
-            Map(f => f.GroupID).Column("GroupID").Key(KeyType.Assigned);
-            Map(f => f.SiteID).Column("SiteID").Key(KeyType.Assigned);
+            Map(f => f.GroupID).Column("GroupID");
+            Map(f => f.SiteID).Column("SiteID");
             Map(f => f.Name).Column("Name");
             Map(f => f.Domain).Column("Domain");
         }
