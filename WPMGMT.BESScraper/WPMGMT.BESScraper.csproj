@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\Scraper.cs" />
     <Compile Include="AppSettings.cs" />
     <Compile Include="API\BesDb.cs" />
     <Compile Include="Model\Action.cs" />

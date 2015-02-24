@@ -107,41 +107,44 @@ namespace WPMGMT.BESScraper
 
             //besDb.InsertAnalysisPropertyResults(results);
 
-            List<Site> sites = besApi.GetSites();
-            besDb.InsertSites(sites);
+            //List<Site> sites = besApi.GetSites();
+            //besDb.InsertSites(sites);
 
-            List<Computer> computers = besApi.GetComputers();
-            besDb.InsertComputers(computers);
+            //List<Computer> computers = besApi.GetComputers();
+            //besDb.InsertComputers(computers);
 
-            List<ComputerGroup> groups = besApi.GetComputerGroups();
-            besDb.InsertComputerGroups(groups);
+            //List<ComputerGroup> groups = besApi.GetComputerGroups();
+            //besDb.InsertComputerGroups(groups);
 
-            List<ComputerGroupMember> members = besApi.GetGroupMembers(groups);
-            besDb.InsertComputerGroupMembers(members);
+            //List<ComputerGroupMember> members = besApi.GetGroupMembers(groups);
+            //besDb.InsertComputerGroupMembers(members);
 
-            List<Baseline> baselines = besApi.GetBaselines(sites);
-            besDb.InsertBaselines(baselines);
+            //List<Baseline> baselines = besApi.GetBaselines(sites);
+            //besDb.InsertBaselines(baselines);
 
-            List<BaselineResult> results = besApi.GetBaselineResults(baselines);
-            besDb.InsertBaselineResults(results);
+            //List<BaselineResult> results = besApi.GetBaselineResults(baselines);
+            //besDb.InsertBaselineResults(results);
 
-            List<WPMGMT.BESScraper.Model.Action> actions = besApi.GetActions();
-            besDb.InsertActions(actions);
+            //List<WPMGMT.BESScraper.Model.Action> actions = besApi.GetActions();
+            //besDb.InsertActions(actions);
 
-            List<ActionDetail> details = besApi.GetActionDetails(actions);
-            besDb.InsertActionDetails(details);
+            //List<ActionDetail> details = besApi.GetActionDetails(actions);
+            //besDb.InsertActionDetails(details);
 
-            List<ActionResult> actionresults = besApi.GetActionResults(actions);
-            besDb.InsertActionResults(actionresults);
+            //List<ActionResult> actionresults = besApi.GetActionResults(actions);
+            //besDb.InsertActionResults(actionresults);
 
-            List<Analysis> analyses = besApi.GetAnalyses();
-            besDb.InsertAnalyses(analyses);
+            //List<Analysis> analyses = besApi.GetAnalyses();
+            //besDb.InsertAnalyses(analyses);
 
-            List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
-            besDb.InsertAnalysisProperties(properties);
+            //List<AnalysisProperty> properties = besApi.GetAnalysisProperties(analyses);
+            //besDb.InsertAnalysisProperties(properties);
 
-            List<AnalysisPropertyResult> result = besApi.GetAnalysisPropertyResults(properties);
-            besDb.InsertAnalysisPropertyResults(result);
+            //List<AnalysisPropertyResult> result = besApi.GetAnalysisPropertyResults(properties);
+            //besDb.InsertAnalysisPropertyResults(result);
+
+            Scraper scraper = new Scraper(besApi, besDb);
+            scraper.Run();
 
             Console.WriteLine("All done :)");
             Console.Read();

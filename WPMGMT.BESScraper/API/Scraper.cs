@@ -21,7 +21,10 @@ namespace WPMGMT.BESScraper.API
 
         public void Run()
         {
-
+            // Step 1: Fetch/Submit all Site objects
+            this.ScrapeSites();
+            // Step 2: Fetch/Submit all Computer objects
+            this.ScrapeComputers();
         }
 
         // Scrapes all sites through /api/sites
@@ -33,24 +36,36 @@ namespace WPMGMT.BESScraper.API
             IEnumerable<Site> dbSites = DB.Connection.Query<Site>(@"SELECT * FROM BESEXT.SITE");
 
             foreach (Site apiSite in apiSites)
-            {
-                // Check if the site already exists in the DB
-                Site dbSite = dbSites.Where(s => s.Name == apiSite.Name).Single();
-                
-                if (dbSite == null)
+            {         
+                // Check if the Site already exists in the DB
+                if (!dbSites.Any(s => s.Name == apiSite.Name))
                 {
-                    // If the retrieved value is NULL, then the Site didn't exist yet
                     DB.Connection.Insert<Site>(apiSite);
                 }
                 else
                 {
                     // Else update the Site
+                    Site dbSite = dbSites.Where(s => s.Name == apiSite.Name).Single();
                     dbSite.Type = apiSite.Type;
-                    // Throw exception if the update failed
+                    
                     if (!DB.Connection.Update<Site>(dbSite))
                     {
                         Exception e = new Exception("Unable to UPDATE Site object");
-                        e.Data["UpdateData"] = dbSite;
+                        e.Data["ObjectData"] = dbSite;
+                        throw e;
+                    }
+                }
+            }
+
+            foreach (Site dbSite in dbSites)
+            {
+                // If the site in the db could not be retrieved using the API, delete it
+                if (!apiSites.Any(s => s.Name == dbSite.Name))
+                {
+                    if (!DB.Connection.Delete(dbSite))
+                    {
+                        Exception e = new Exception("Unable to DELETE Site object");
+                        e.Data["ObjectData"] = dbSite;
                         throw e;
                     }
                 }
@@ -67,29 +82,42 @@ namespace WPMGMT.BESScraper.API
 
             foreach (Computer apiComputer in apiComputers)
             {
-                // Check if the site already exists in the DB
-                Computer dbComputer = dbComputers.Where(c => c.ComputerID == apiComputer.ComputerID).Single();
-
-                if (dbComputer == null)
+                // Check if the Computer already exists in the DB
+                if (!dbComputers.Any(c => c.ComputerID == apiComputer.ComputerID))
                 {
-                    // If the retrieved value is NULL, then the Site didn't exist yet
                     DB.Connection.Insert<Computer>(apiComputer);
                 }
                 else
                 {
                     // Else update the Site
+                    Computer dbComputer = dbComputers.Where(c => c.ComputerID == apiComputer.ComputerID).Single();
                     dbComputer.LastReportTime = apiComputer.LastReportTime;
+
                     if (!DB.Connection.Update<Computer>(dbComputer))
                     {
                         Exception e = new Exception("Unable to UPDATE Computer object");
-                        e.Data["UpdateData"] = dbComputer;
+                        e.Data["ObjectData"] = dbComputer;
+                        throw e;
+                    }
+                }
+            }
+
+            foreach (Computer dbComputer in dbComputers)
+            {
+                // If the site in the db could not be retrieved using the API, delete it
+                if (!apiComputers.Any(c => c.ComputerID == dbComputer.ComputerID))
+                {
+                    if (!DB.Connection.Delete(dbComputer))
+                    {
+                        Exception e = new Exception("Unable to DELETE Site object");
+                        e.Data["ObjectData"] = dbComputer;
                         throw e;
                     }
                 }
             }
         }
-
-        private void ScrapeComputers()
+        
+        private void ScrapeComputerGroups()
         {
 
         }
