@@ -15,7 +15,7 @@ namespace WPMGMT.BESScraper.API
         // Fields
         private Uri baseURL;
         private HttpBasicAuthenticator authenticator;
-        private Logger logger;
+        private Logger logger = LogManager.GetCurrentClassLogger();
 
         // Properties
         public Uri BaseURL
@@ -31,7 +31,7 @@ namespace WPMGMT.BESScraper.API
         }
 
         // Constructors
-        public BesApi(Uri aBaseURL, string aUsername, string aPassword)
+        public BesApi(string aBaseURL, string aUsername, string aPassword)
         {
             // Use to ignore SSL errors if specified in App.config
             if (AppSettings.Get<bool>("IgnoreSSL"))
@@ -39,7 +39,7 @@ namespace WPMGMT.BESScraper.API
                 ServicePointManager.ServerCertificateValidationCallback += (sender, certificate, chain, sslPolicyErrors) => true;
             }
 
-            this.BaseURL = aBaseURL;
+            this.BaseURL = new Uri(aBaseURL);
             this.authenticator = new HttpBasicAuthenticator(aUsername, aPassword);
         }
 
@@ -203,7 +203,7 @@ namespace WPMGMT.BESScraper.API
 
             // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
             // For this reason we're fetching the list of sites from the DB again, so we can resolve ID->Name
-            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
             Site site = besDb.SelectSite(analysis.SiteID);
 
             // Likewise, we need the DB ID of the Analysis, because we API IDs are NOT unique
@@ -262,7 +262,7 @@ namespace WPMGMT.BESScraper.API
             string relevance = "((id of it) of computer of it, values of it) of results from (BES Computers) of BES Properties whose ((source id of it = {0}) and (name of source analysis of it = \"{1}\"))";
 
             // Unfortunately, we'll also need the name of the Parent Analysis. For that, we'll need to query the DB
-            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
             Analysis analysis = besDb.SelectAnalysis(property.AnalysisID);
 
             // Let's compose the request string
@@ -357,7 +357,7 @@ namespace WPMGMT.BESScraper.API
             
             // We need to acquire some info concerning the site
             // Let's fetch the site object now
-            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
             Site dbSite = besDb.SelectSite(baseline.SiteID);
 
             // The list of baselines is contained within the site content
@@ -468,7 +468,7 @@ namespace WPMGMT.BESScraper.API
 
             // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
             // Let's fetch the Site from the DB first
-            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
             Site dbSite = besDb.SelectSite(site.Name);
 
             // Assign SiteID if the corresponding Site was found in the DB
@@ -496,7 +496,7 @@ namespace WPMGMT.BESScraper.API
         {
             List<ComputerGroupMember> members = new List<ComputerGroupMember>();
 
-            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
+            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
             Site dbSite = besDb.SelectSite(group.SiteID);
 
             if (dbSite != null)
