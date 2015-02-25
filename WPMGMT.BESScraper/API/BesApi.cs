@@ -502,7 +502,7 @@ namespace WPMGMT.BESScraper.API
             BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
             Site dbSite = besDb.SelectSite(group.SiteID);
 
-            if ((dbSite != null) && (dbSite.ID != null))
+            if (dbSite != null)
             {
                 RestClient client = new RestClient(this.BaseURL);
                 client.Authenticator = this.Authenticator;
