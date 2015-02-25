@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
+using NLog;
 using RestSharp;
 using WPMGMT.BESScraper.Model;
 
@@ -14,6 +15,7 @@ namespace WPMGMT.BESScraper.API
         // Fields
         private Uri baseURL;
         private HttpBasicAuthenticator authenticator;
+        private Logger logger;
 
         // Properties
         public Uri BaseURL
@@ -144,13 +146,8 @@ namespace WPMGMT.BESScraper.API
             return results;
         }
 
-        public List<Analysis> GetAnalyses()
+        public List<Analysis> GetAnalyses(List<Site> sites)
         {
-            // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
-            // For this reason we're choosing to get the sites from the DB instead of the REST API here
-            BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["TEST"].ToString());
-            List<Site> sites = besDb.SelectSites();
-
             List<Analysis> analyses = new List<Analysis>();
 
             foreach (Site site in sites)
@@ -251,7 +248,7 @@ namespace WPMGMT.BESScraper.API
         // Returns results for all computers for said property
         public List<AnalysisPropertyResult> GetAnalysisPropertyResult(AnalysisProperty property)
         {
-            Console.WriteLine("{0}: Property: {1}", property.ID, property.Name);
+            logger.Debug("Collecting Property - {0}: Property: {1}", property.ID, property.Name);
 
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;

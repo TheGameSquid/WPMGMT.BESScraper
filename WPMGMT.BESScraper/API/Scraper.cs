@@ -49,6 +49,12 @@ namespace WPMGMT.BESScraper.API
                 this.ScrapeActionDetails();
                 // Step 8: Fetch/Submit all ActionResult objects
                 this.ScrapeActionResults();
+                // Step 9: Fetch/Submit all Analysis objects
+                this.ScrapeAnalyses();
+                // Step 10: Fetch/Submit all AnalysisProperty objects
+                this.ScrapeAnalysisProperties();
+                // Step 11: Fetch/Submit all AnalysisPropertyResult objects
+                this.ScrapeAnalysisPropertyResults();
 
                 timer.Stop();
                 Logger.Info("Finished Run() in {0}", timer.Elapsed);
@@ -507,6 +513,171 @@ namespace WPMGMT.BESScraper.API
                     {
                         Exception e = new Exception("Unable to DELETE ActionResult object");
                         e.Data["ObjectData"] = dbActionResult;
+                        throw e;
+                    }
+                }
+            }
+        }
+
+        // Scrapes all Analyses through /api/analyses/{sitetype}/{site}"
+        private void ScrapeAnalyses()
+        {
+            Logger.Info("ScrapeAnalyses() started");
+
+            // Get all available Sites from the DB
+            List<Site> dbSites = (List<Site>)DB.Connection.Query<Site>(@"SELECT * FROM [BESEXT].[SITE]");
+
+            // Retrieve all Analyses from the API
+            List<Analysis> apiAnalyses = API.GetAnalyses(dbSites);
+            // Retrieve all Analyses in the DB
+            IEnumerable<Analysis> dbAnalyses = DB.Connection.Query<Analysis>(@"SELECT * FROM [BESEXT].[ANALYSIS]");
+
+            foreach (Analysis apiAnalysis in apiAnalyses)
+            {
+                // Check if the Analysis already exists in the DB
+                if (!dbAnalyses.Any(a => a.AnalysisID == apiAnalysis.AnalysisID && a.SiteID == apiAnalysis.SiteID))
+                {
+                    Logger.Debug("Inserting Analysis: {0}:{1}", apiAnalysis.AnalysisID, apiAnalysis.SiteID);
+                    DB.Connection.Insert<Analysis>(apiAnalysis);
+                }
+                else
+                {
+                    // Else update the Analysis
+                    Analysis dbAnalysis = dbAnalyses.Where(a => a.AnalysisID == apiAnalysis.AnalysisID && a.SiteID == apiAnalysis.SiteID).Single();
+                    dbAnalysis.Name = apiAnalysis.Name;
+
+                    Logger.Debug("Updating Analysis: {0}:{1}", apiAnalysis.AnalysisID, apiAnalysis.SiteID);
+                    if (!DB.Connection.Update<Analysis>(dbAnalysis))
+                    {
+                        Exception e = new Exception("Unable to UPDATE Analysis object");
+                        e.Data["ObjectData"] = dbAnalysis;
+                        throw e;
+                    }
+                }
+            }
+
+            foreach (Analysis dbAnalysis in dbAnalyses)
+            {
+                // If the Analysis in the db could not be retrieved using the API, delete it
+                if (!apiAnalyses.Any(a => a.AnalysisID == dbAnalysis.AnalysisID && a.SiteID == dbAnalysis.SiteID))
+                {
+                    Logger.Debug("Deleting Analysis: {0}", dbAnalysis.ID);
+                    if (!DB.Connection.Delete(dbAnalysis))
+                    {
+                        Exception e = new Exception("Unable to DELETE Analysis object");
+                        e.Data["ObjectData"] = dbAnalysis;
+                        throw e;
+                    }
+                }
+            }
+        }
+
+        // Scrapes all AnalysisProperties through /api/analysis/{sitetype}/{site}/{analysisid}"
+        private void ScrapeAnalysisProperties()
+        {
+            Logger.Info("ScrapeAnalysisProperties() started");
+
+            // Get all available Analyses from the DB
+            List<Analysis> dbAnalyses = (List<Analysis>)DB.Connection.Query<Analysis>(@"SELECT * FROM [BESEXT].[ANALYSIS]");
+
+            // Retrieve all AnalysisProperties from the API
+            List<AnalysisProperty> apiAnalysisProperties = API.GetAnalysisProperties(dbAnalyses);
+            // Retrieve all AnalysisProperties in the DB
+            IEnumerable<AnalysisProperty> dbAnalysisProperties = DB.Connection.Query<AnalysisProperty>(@"SELECT * FROM [BESEXT].[ANALYSIS_PROPERTY]");
+
+            foreach (AnalysisProperty apiAnalysisProperty in apiAnalysisProperties)
+            {
+                // Check if the AnalysisProperty already exists in the DB
+                if (!dbAnalysisProperties.Any(ap => ap.AnalysisID == apiAnalysisProperty.AnalysisID 
+                                                && ap.SequenceNo == apiAnalysisProperty.SequenceNo))
+                {
+                    Logger.Debug("Inserting AnalysisProperty: {0}:{1}", apiAnalysisProperty.AnalysisID, apiAnalysisProperty.SequenceNo);
+                    DB.Connection.Insert<AnalysisProperty>(apiAnalysisProperty);
+                }
+                else
+                {
+                    // Else update the AnalysisProperty
+                    AnalysisProperty dbAnalysisProperty = dbAnalysisProperties.Where(ap => ap.AnalysisID == apiAnalysisProperty.AnalysisID
+                                                && ap.SequenceNo == apiAnalysisProperty.SequenceNo).Single();
+                    dbAnalysisProperty.Name = apiAnalysisProperty.Name;
+
+                    Logger.Debug("Updating AnalysisProperty: {0}:{1}", apiAnalysisProperty.AnalysisID, apiAnalysisProperty.SequenceNo);
+                    if (!DB.Connection.Update<AnalysisProperty>(dbAnalysisProperty))
+                    {
+                        Exception e = new Exception("Unable to UPDATE AnalysisProperty object");
+                        e.Data["ObjectData"] = dbAnalysisProperty;
+                        throw e;
+                    }
+                }
+            }
+
+            foreach (AnalysisProperty dbAnalysisProperty in dbAnalysisProperties)
+            {
+                // If the AnalysisProperty in the db could not be retrieved using the API, delete it
+                if (!dbAnalysisProperties.Any(ap => ap.AnalysisID == dbAnalysisProperty.AnalysisID 
+                                                && ap.SequenceNo == dbAnalysisProperty.SequenceNo))
+                {
+                    Logger.Debug("Deleting AnalysisProperty: {0}", dbAnalysisProperty.ID);
+                    if (!DB.Connection.Delete(dbAnalysisProperty))
+                    {
+                        Exception e = new Exception("Unable to DELETE AnalysisProperty object");
+                        e.Data["ObjectData"] = dbAnalysisProperty;
+                        throw e;
+                    }
+                }
+            }
+        }
+
+        // Scrapes all AnalysisPropertyResults through the use of relevance :("
+        private void ScrapeAnalysisPropertyResults()
+        {
+            Logger.Info("ScrapeAnalysisPropertyResults() started");
+
+            // Get all available AnalysisProperties from the DB
+            List<AnalysisProperty> dbAnalysisProperties = (List<AnalysisProperty>)DB.Connection.Query<AnalysisProperty>(@"SELECT * FROM [BESEXT].[ANALYSIS_PROPERTY]");
+
+            // Retrieve all AnalysisPropertyResults from the API
+            List<AnalysisPropertyResult> apiAnalysisPropertyResults = API.GetAnalysisPropertyResults(dbAnalysisProperties);
+            // Retrieve all AnalysisPropertyResults in the DB
+            IEnumerable<AnalysisPropertyResult> dbAnalysisPropertyResults = DB.Connection.Query<AnalysisPropertyResult>(@"SELECT * FROM [BESEXT].[ANALYSIS_PROPERTY_RESULT]");
+
+            foreach (AnalysisPropertyResult apiAnalysisPropertyResult in apiAnalysisPropertyResults)
+            {
+                // Check if the AnalysisPropertyResult already exists in the DB
+                if (!dbAnalysisPropertyResults.Any(ar => ar.PropertyID == apiAnalysisPropertyResult.PropertyID
+                                                && ar.ComputerID == apiAnalysisPropertyResult.ComputerID))
+                {
+                    Logger.Debug("Inserting AnalysisPropertyResult: {0}:{1}", apiAnalysisPropertyResult.PropertyID, apiAnalysisPropertyResult.ComputerID);
+                    DB.Connection.Insert<AnalysisPropertyResult>(apiAnalysisPropertyResult);
+                }
+                else
+                {
+                    // Else update the AnalysisPropertyResult
+                    AnalysisPropertyResult dbAnalysisPropertyResult = dbAnalysisPropertyResults.Where(ar => ar.PropertyID == apiAnalysisPropertyResult.PropertyID
+                                                && ar.ComputerID == apiAnalysisPropertyResult.ComputerID).Single();
+                    dbAnalysisPropertyResult.Value = apiAnalysisPropertyResult.Value;
+
+                    Logger.Debug("Updating AnalysisPropertyResult: {0}:{1}", apiAnalysisPropertyResult.PropertyID, apiAnalysisPropertyResult.ComputerID);
+                    if (!DB.Connection.Update<AnalysisPropertyResult>(dbAnalysisPropertyResult))
+                    {
+                        Exception e = new Exception("Unable to UPDATE AnalysisPropertyResult object");
+                        e.Data["ObjectData"] = dbAnalysisPropertyResult;
+                        throw e;
+                    }
+                }
+            }
+
+            foreach (AnalysisPropertyResult dbAnalysisPropertyResult in dbAnalysisPropertyResults)
+            {
+                // If the AnalysisPropertyResult in the db could not be retrieved using the API, delete it
+                if (!dbAnalysisPropertyResults.Any(ar => ar.PropertyID == dbAnalysisPropertyResult.PropertyID
+                                                && ar.ComputerID == dbAnalysisPropertyResult.ComputerID))
+                {
+                    Logger.Debug("Deleting AnalysisPropertyResult: {0}:{1}", dbAnalysisPropertyResult.PropertyID, dbAnalysisPropertyResult.ComputerID);
+                    if (!DB.Connection.Delete(dbAnalysisPropertyResult))
+                    {
+                        Exception e = new Exception("Unable to DELETE AnalysisPropertyResult object");
+                        e.Data["ObjectData"] = dbAnalysisPropertyResult;
                         throw e;
                     }
                 }
