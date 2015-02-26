@@ -425,16 +425,43 @@ namespace WPMGMT.BESScraper.API
             return groups;
         }
 
+        //public List<ComputerGroup> GetComputerGroups(Site site)
+        //{
+        //    List<ComputerGroup> groups = new List<ComputerGroup>();
+
+        //    RestClient client = new RestClient(this.BaseURL);
+        //    client.Authenticator = this.Authenticator;
+
+        //    RestRequest request = new RestRequest("computergroups/{sitetype}/{site}", Method.GET);
+        //    request.AddUrlSegment("site", site.Name);
+        //    request.AddUrlSegment("sitetype", site.Type);
+
+        //    // TODO: Handle master action site properly
+        //    if (site.Type == "master")
+        //    {
+        //        request = new RestRequest("computergroups/{sitetype}", Method.GET);
+        //        request.AddUrlSegment("sitetype", site.Type);
+        //    }
+
+        //    XDocument response = Execute(request);
+
+        //    foreach (XElement groupElement in response.Element("BESAPI").Elements("ComputerGroup"))
+        //    {
+        //        groups.Add(GetComputerGroup(site, Int32.Parse(groupElement.Element("ID").Value)));
+        //    }
+
+        //    return groups;
+        //}
+
+        //public ComputerGroup GetComputerGroup(Site site, int id)
         public List<ComputerGroup> GetComputerGroups(Site site)
         {
-            List<ComputerGroup> groups = new List<ComputerGroup>();
-
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
             RestRequest request = new RestRequest("computergroups/{sitetype}/{site}", Method.GET);
-            request.AddUrlSegment("site", site.Name);
             request.AddUrlSegment("sitetype", site.Type);
+            request.AddUrlSegment("site", site.Name);
 
             // TODO: Handle master action site properly
             if (site.Type == "master")
@@ -443,28 +470,7 @@ namespace WPMGMT.BESScraper.API
                 request.AddUrlSegment("sitetype", site.Type);
             }
 
-            XDocument response = Execute(request);
-
-            foreach (XElement groupElement in response.Element("BESAPI").Elements("ComputerGroup"))
-            {
-                groups.Add(GetComputerGroup(site, Int32.Parse(groupElement.Element("ID").Value)));
-            }
-
-            return groups;
-        }
-
-        public ComputerGroup GetComputerGroup(Site site, int id)
-        {
-            RestClient client = new RestClient(this.BaseURL);
-            client.Authenticator = this.Authenticator;
-
-            RestRequest request = new RestRequest("computergroup/{sitetype}/{site}/{id}", Method.GET);
-            request.AddUrlSegment("sitetype", site.Type);
-            request.AddUrlSegment("site", site.Name);
-            request.AddUrlSegment("id", id.ToString());
-
-            ComputerGroup group = Execute<ComputerGroup>(request);
-            group.GroupID = id;
+            List<ComputerGroup> groups = Execute<List<ComputerGroup>>(request);
 
             // The API does not assign an ID to the Site. Therefore, we use the ID assigned by the DB.
             // Let's fetch the Site from the DB first
@@ -472,12 +478,18 @@ namespace WPMGMT.BESScraper.API
             Site dbSite = besDb.SelectSite(site.Name);
 
             // Assign SiteID if the corresponding Site was found in the DB
-            if (dbSite != null)
+            foreach (ComputerGroup group in groups)
             {
-                group.SiteID = dbSite.ID;
+                if (dbSite != null)
+                {
+                    group.SiteID = dbSite.ID;
+                }
+
+                // Check if it's a manual group
+                group.Manual = IsManualGroup(group);
             }
 
-            return group;
+            return groups;
         }
 
         public List<ComputerGroupMember> GetGroupMembers(List<ComputerGroup> groups)
@@ -554,6 +566,58 @@ namespace WPMGMT.BESScraper.API
             return sites;
         }
 
+        private bool IsManualGroup(int groupid)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            List<AnalysisPropertyResult> results = new List<AnalysisPropertyResult>();
+
+            // We need to use Session Relevance to check if a group is manual or not
+            // We'll use the following Relevance query:
+            // {0}: The ID of the Computer Group
+            string relevance = "(manual flag of it) of BES computer groups whose (id of it = {0})";
+
+            // Let's compose the request string
+            RestRequest request = new RestRequest("query", Method.GET);
+            request.AddQueryParameter("relevance", String.Format(relevance, groupid));
+
+            XDocument response = Execute(request);
+
+            // Let's check if the Result element is empty
+            if (response.Element("BESAPI").Element("Query").Element("Result").Elements().Count() > 0)
+            {
+                return Convert.ToBoolean(response.Element("BESAPI").Element("Query").Element("Result").Element("Answer").Value);
+            }
+            return false;
+        }
+
+        private bool IsManualGroup(ComputerGroup group)
+        {
+            RestClient client = new RestClient(this.BaseURL);
+            client.Authenticator = this.Authenticator;
+
+            List<AnalysisPropertyResult> results = new List<AnalysisPropertyResult>();
+
+            // We need to use Session Relevance to check if a group is manual or not
+            // We'll use the following Relevance query:
+            // {0}: The ID of the Computer Group
+            string relevance = "(manual flag of it) of BES computer groups whose (id of it = {0})";
+
+            // Let's compose the request string
+            RestRequest request = new RestRequest("query", Method.GET);
+            request.AddQueryParameter("relevance", String.Format(relevance, group.GroupID));
+
+            XDocument response = Execute(request);
+
+            // Let's check if the Result element is empty
+            if (response.Element("BESAPI").Element("Query").Element("Result").Elements().Count() > 0)
+            {
+                return Convert.ToBoolean(response.Element("BESAPI").Element("Query").Element("Result").Element("Answer").Value);
+            }
+            return false;
+        }
+
         public XDocument Execute(RestRequest request)
         {
             RestClient client = new RestClient();
@@ -566,6 +630,7 @@ namespace WPMGMT.BESScraper.API
             {
                 if (response.ErrorException != null)
                 {
+                    logger.ErrorException(response.ErrorException.Message, response.ErrorException);
                     throw new Exception(response.ErrorMessage);
                 }
 

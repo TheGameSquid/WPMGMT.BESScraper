@@ -1,17 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using WPMGMT.BESScraper.Model;
 using Dapper;
 using DapperExtensions;
+using Quartz;
 using NLog;
 
 namespace WPMGMT.BESScraper.API
 {
-    class Scraper
+    class Scraper : IJob
     {
+        public Scraper()
+        {
+            // Empty constructor for Quartz
+
+
+            this.API = new BesApi(
+                                    ConfigurationManager.AppSettings["ApiEndpoint"],
+                                    ConfigurationManager.AppSettings["ApiUser"],
+                                    ConfigurationManager.AppSettings["ApiPassword"]
+                                 );
+            this.DB = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
+            this.Logger = LogManager.GetCurrentClassLogger();
+        }
+
         public Scraper (BesApi api, BesDb db)
         {
             this.API = api;
@@ -23,7 +39,14 @@ namespace WPMGMT.BESScraper.API
         public BesDb DB         { get; private set; }
         public Logger Logger    { get; private set; }
 
-        public void Run()
+        //public void Execute(IJobExecutionContext context)
+        //{
+        //    //Logger.Warn("Gepoet!");
+        //    Console.WriteLine("HAHAHAHAH");
+        //}
+
+        //public void Run()
+        public void Execute(IJobExecutionContext context)
         {
             Stopwatch timer = new Stopwatch();
             timer.Start();
@@ -189,7 +212,6 @@ namespace WPMGMT.BESScraper.API
                     ComputerGroup dbComputerGroup = dbComputerGroups.Where(g => g.GroupID == apiComputerGroup.GroupID).Single();
                     dbComputerGroup.Name = apiComputerGroup.Name;
                     dbComputerGroup.SiteID = apiComputerGroup.SiteID;
-                    dbComputerGroup.Domain = apiComputerGroup.Domain;
 
                     Logger.Debug("Updating ComputerGroup: {0}", dbComputerGroup.GroupID);
                     if (!DB.Connection.Update<ComputerGroup>(dbComputerGroup))
