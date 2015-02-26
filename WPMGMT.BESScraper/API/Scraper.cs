@@ -17,8 +17,6 @@ namespace WPMGMT.BESScraper.API
         public Scraper()
         {
             // Empty constructor for Quartz
-
-
             this.API = new BesApi(
                                     ConfigurationManager.AppSettings["ApiEndpoint"],
                                     ConfigurationManager.AppSettings["ApiUser"],
@@ -39,13 +37,6 @@ namespace WPMGMT.BESScraper.API
         public BesDb DB         { get; private set; }
         public Logger Logger    { get; private set; }
 
-        //public void Execute(IJobExecutionContext context)
-        //{
-        //    //Logger.Warn("Gepoet!");
-        //    Console.WriteLine("HAHAHAHAH");
-        //}
-
-        //public void Run()
         public void Execute(IJobExecutionContext context)
         {
             Stopwatch timer = new Stopwatch();
@@ -61,22 +52,22 @@ namespace WPMGMT.BESScraper.API
                 // Step 3: Fetch/Submit all ComputerGroup objects
                 this.ScrapeComputerGroups();
                 // Step 4: Fetch/Submit all ComputerGroupMember objects
-                this.ScrapeComputerGroups();
-                // Step 4: Fetch/Submit all Baseline objects
+                this.ScrapeComputerGroupMembers();
+                // Step 5: Fetch/Submit all Baseline objects
                 this.ScrapeBaselines();
-                // Step 5: Fetch/Submit all BaselineResult objects
+                // Step 6: Fetch/Submit all BaselineResult objects
                 this.ScrapeBaselineResults();
-                // Step 6: Fetch/Submit all Action objects
+                // Step 7: Fetch/Submit all Action objects
                 this.ScrapeActions();
-                // Step 7: Fetch/Submit all ActionDetail objects
+                // Step 8: Fetch/Submit all ActionDetail objects
                 this.ScrapeActionDetails();
-                // Step 8: Fetch/Submit all ActionResult objects
+                // Step 9: Fetch/Submit all ActionResult objects
                 this.ScrapeActionResults();
-                // Step 9: Fetch/Submit all Analysis objects
+                // Step 10: Fetch/Submit all Analysis objects
                 this.ScrapeAnalyses();
-                // Step 10: Fetch/Submit all AnalysisProperty objects
+                // Step 11: Fetch/Submit all AnalysisProperty objects
                 this.ScrapeAnalysisProperties();
-                // Step 11: Fetch/Submit all AnalysisPropertyResult objects
+                // Step 12: Fetch/Submit all AnalysisPropertyResult objects
                 this.ScrapeAnalysisPropertyResults();
 
                 timer.Stop();
