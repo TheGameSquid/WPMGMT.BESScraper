@@ -48,7 +48,7 @@ namespace WPMGMT.BESScraper
                         JobBuilder.Create<Scraper>().Build())
                             .AddTrigger(() =>
                                 TriggerBuilder.Create()
-                                    .WithCronSchedule("0 0 0/1 1/1 * ? *")
+                                    .WithCronSchedule(ConfigurationManager.AppSettings["CronExpression"])
                                     .StartNow()
                                     .Build())
                 );
