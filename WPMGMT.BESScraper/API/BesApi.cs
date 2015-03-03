@@ -51,14 +51,59 @@ namespace WPMGMT.BESScraper.API
             return GetActions().SingleOrDefault(x => x.ID == id);
         }
 
+        //public List<WPMGMT.BESScraper.Model.Action> GetActions()
+        //{
+        //    RestClient client = new RestClient(this.BaseURL);
+        //    client.Authenticator = this.Authenticator;
+
+        //    RestRequest request = new RestRequest("actions", Method.GET);
+
+        //    return Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
+        //}
+
         public List<WPMGMT.BESScraper.Model.Action> GetActions()
         {
             RestClient client = new RestClient(this.BaseURL);
             client.Authenticator = this.Authenticator;
 
-            RestRequest request = new RestRequest("actions", Method.GET);
+            List<WPMGMT.BESScraper.Model.Action> actions = new List<WPMGMT.BESScraper.Model.Action>();
 
-            return Execute<List<WPMGMT.BESScraper.Model.Action>>(request);
+            // We need to use Session Relevance to acquire the list of Sites, REST API sucks
+            // We'll use the following Relevance query, no parameters are required:
+            string relevance = "(((name of it) of site of it) of source fixlets of it, id of it, name of it) of BES Actions";
+
+            // Let's compose the request string
+            RestRequest request = new RestRequest("query", Method.GET);
+            request.AddQueryParameter("relevance", relevance);
+
+            XDocument response = Execute(request);
+
+            // Let's check if the Result element is empty
+            if (response.Element("BESAPI").Element("Query").Element("Result").Elements().Count() > 0)
+            {
+                // We'll need to fetch the list of Sites from the DB in order to retrieve the SiteID
+                BesDb DB = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
+
+                // All answers are wrapped inside a "Tuple" element
+                foreach (XElement tupleElement in response.Element("BESAPI").Element("Query").Element("Result").Elements("Tuple"))
+                {
+                    // The Result consists of three parts:
+                    //  1) The Site Name
+                    //  2) The ActionID
+                    //  3) The Action Name
+                    XElement siteElement = tupleElement.Elements("Answer").First();
+                    XElement actionIDElement = tupleElement.Elements("Answer").ElementAt(1);
+                    XElement valueElement = tupleElement.Elements("Answer").Last();
+
+                    // Resolve Site Name to Site ID
+                    Site dbSite = DB.Connection.Query<Site>("SELECT * FROM BESEXT.SITE WHERE @Name = Name", new { Name = siteElement.Value }).Single();
+         
+                    // Add the new action
+                    actions.Add(new WPMGMT.BESScraper.Model.Action(Convert.ToInt32(actionIDElement.Value), dbSite.ID, valueElement.Value));
+                }
+            }
+
+            return actions;
         }
 
         public ActionDetail GetActionDetail(WPMGMT.BESScraper.Model.Action action)

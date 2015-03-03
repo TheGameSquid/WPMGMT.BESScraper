@@ -7,9 +7,6 @@ using System.Linq;
 using System.Net;
 
 using Common.Logging;
-using RestSharp;
-using Dapper;
-using DapperExtensions;
 using Quartz;
 using Topshelf;
 using Topshelf.Quartz;
@@ -32,7 +29,8 @@ namespace WPMGMT.BESScraper
             BesDb besDb = new BesDb(ConfigurationManager.ConnectionStrings["DB"].ToString());
 
 
-            //Setup logging
+            // Setup logging
+            // TODO: Pipe logging through NLog
             LogManager.Adapter = new Common.Logging.Simple.TraceLoggerFactoryAdapter { Level = LogLevel.Info };
 
             HostFactory.Run(x =>

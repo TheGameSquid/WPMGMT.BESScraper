@@ -11,10 +11,16 @@ namespace WPMGMT.BESScraper.Model
             // Empty constructor for Dapper and RestSharp
         }
 
-        [DeserializeAs(Name = "IgnoreID")]
+        public Action(int actionID, int siteID, string name)
+        {
+            this.ActionID = actionID;
+            this.SiteID = siteID;
+            this.Name = name;
+        }
+
         public int ID           { get; set; }       // Identity ID assigned by DB
-        [DeserializeAs(Name = "ID")]
         public int ActionID     { get; set; }       // Identity ID assigned by API
+        public int SiteID       { get; set; }
         public string Name      { get; set; }
     }
 
@@ -30,6 +36,7 @@ namespace WPMGMT.BESScraper.Model
             // Define target columns
             Map(f => f.ID).Column("ID").Key(KeyType.Identity);
             Map(f => f.ActionID).Column("ActionID");
+            Map(f => f.SiteID).Column("SiteID");
             Map(f => f.Name).Column("Name");
         }
     }
